@@ -1,0 +1,267 @@
+@import url("https://fonts.googleapis.com/css2?family=Alata&family=Bebas+Neue&family=Comfortaa&family=Poppins:wght@300;400;500;600&family=Quicksand&display=swap");
+
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+@keyframes cabecalho {
+  from {
+    left: -800px;
+    opacity: 0;
+  }
+
+  to {
+    left: 0;
+    opacity: 1;
+  }
+}
+
+@keyframes gradiente {
+  0% {
+    background: #ffa800;
+  }
+
+  25% {
+    background: #ff8800;
+  }
+
+  50% {
+    background: #ff6600;
+  }
+
+  75% {
+    background: #ffa600;
+  }
+
+  100% {
+    background: #ffa800;
+  }
+}
+
+@keyframes sol {
+  0% {
+    left: 1500px;
+    rotate: 2000deg;
+    scale: 0;
+  }
+
+  50% {
+    rotate: 1000deg;
+    scale: 2;
+  }
+
+  100% {
+    left: -300px;
+    rotate: 0deg;
+    scale: 0;
+  }
+}
+
+@keyframes particulas {
+  0% {
+    top: 0;
+  }
+
+  25% {
+    top: 30px;
+  }
+
+  50% {
+    top: 50px;
+  }
+
+  75% {
+    top: 30px;
+  }
+
+  100% {
+    top: 0;
+  }
+}
+
+.home {
+  min-height: 100vh;
+  overflow-x: hidden;
+  font-family: "Poppins", sans-serif;
+  background: linear-gradient(316.12deg, #ffa800 59.23%, #ff2525 116.27%);
+  animation: gradiente 7s infinite;
+  transition: 1.5s;
+  position: relative;
+}
+
+.particulas {
+  position: absolute;
+  left: 750px;
+  animation: particulas 7s infinite;
+  transition: 0.5s;
+  z-index: 0;
+  opacity: 0.4;
+}
+
+hr {
+  color: #ffffff;
+  background-color: #ffffff;
+  height: 1px;
+  border: none;
+}
+
+.cabecalho {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 24px;
+  animation-name: cabecalho;
+  animation-duration: 3s;
+  position: relative;
+  z-index: 2;
+}
+
+.cabecalho-img {
+  height: 72px;
+}
+
+.cabecalho-txt {
+  display: flex;
+  gap: 40px;
+}
+
+.cabecalho-txt-it {
+  color: #ffffff;
+  letter-spacing: 0.025em;
+  line-height: 42px;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 25px;
+}
+
+.sol {
+  width: 10%;
+  left: -500px;
+  position: absolute;
+  z-index: 0;
+  padding: 20px;
+  animation: sol 15s;
+  scale: -1;
+}
+
+.inicio {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+  min-height: calc(100vh - 122px);
+}
+
+.inicio-img {
+  width: 20%;
+  margin-left: 40px;
+}
+
+.inicio-txt {
+  font-family: "Alata", sans-serif;
+  text-align: left;
+  margin-left: 100px;
+  font-size: 80px;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.cervejas {
+  transition: all 0.5s;
+  cursor: pointer;
+  max-width: 35%;
+  margin-left: auto;
+  margin-right: 60px;
+}
+
+.cervejas:hover {
+  transform: scale(1.2);
+  filter: drop-shadow(15px 10px 5px rgba(0, 0, 0, 0.5));
+}
+
+.text-fot {
+  text-align: center;
+  color: #ffffff;
+  padding: 20px;
+  position: relative;
+  z-index: 5;
+}
+
+/* Responsivo */
+@media (max-width: 1024px) {
+  .cabecalho {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .cabecalho-txt {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+  }
+
+  .cabecalho-txt-it {
+    font-size: 20px;
+  }
+
+  .inicio {
+    flex-direction: column;
+    text-align: center;
+    padding: 40px 20px;
+  }
+
+  .inicio-img {
+    width: 35%;
+    margin-left: 0;
+  }
+
+  .inicio-txt {
+    margin-left: 0;
+    margin-top: 40px;
+    font-size: 52px;
+    text-align: center;
+  }
+
+  .cervejas {
+    max-width: 70%;
+    margin: 40px 0 0;
+  }
+
+  .particulas {
+    left: 30%;
+    width: 80%;
+  }
+}
+
+@media (max-width: 600px) {
+  .cabecalho-txt {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .cabecalho-txt-it {
+    font-size: 18px;
+  }
+
+  .inicio-img {
+    width: 50%;
+  }
+
+  .inicio-txt {
+    font-size: 40px;
+  }
+
+  .cervejas {
+    max-width: 90%;
+  }
+
+  .sol {
+    width: 25%;
+  }
+}
