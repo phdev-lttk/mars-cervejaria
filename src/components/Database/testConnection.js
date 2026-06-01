@@ -10,7 +10,7 @@ function TestConnection() {
       try {
         const snapshot = await getDocs(collection(db, "testeConexao"));
 
-        setStatus(`Conexão OK! Documentos encontrados: ${snapshot.size}`);
+        setStatus(`Conexão OK! Erros encontrados: ${snapshot.size}`);
         console.log("[DATABASE] - CONECTADO COM ÊXITO", snapshot.docs.map((doc) => doc.data()));
       } catch (error) {
         setStatus("Erro na conexão com o Firebase");
@@ -21,7 +21,7 @@ function TestConnection() {
     testarConexao();
   }, []);
 
-  return <h2>{status}</h2>;
+  return console.log(status);
 }
 
 export default TestConnection;
