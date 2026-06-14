@@ -1,11 +1,12 @@
-import "./Home.css";
+import Header from '../Header/Header';
+import './Home.css';
 
 function Home() {
   return (
     <div className="home">
       <img className="particulas" src="/images/home/particulas.png" alt="partículas" />
 
-      <header className="cabecalho">
+      {/* <header className="cabecalho">
         <img className="cabecalho-img" src="/images/icons/logobranca.svg" alt="logo mars" />
 
         <nav className="cabecalho-txt">
@@ -16,7 +17,9 @@ function Home() {
         </nav>
       </header>
 
-      <hr />
+      <hr /> */}
+
+      <Header />
 
       <img className="sol" src="/images/home/sol.png" alt="sol" />
 
@@ -33,18 +36,12 @@ function Home() {
           ÚNICA
         </p>
 
-        <img
-          className="cervejas"
-          src="/images/home/MARS_BEER.png"
-          alt="cervejas mars"
-        />
+        <img className="cervejas" src="/images/home/MARS_BEER.png" alt="cervejas mars" />
       </section>
 
       <hr />
 
-      <footer className="text-fot">
-        Criado e desenvolvido por Pablo H. & Gustavo A. 
-      </footer>
+      <footer className="text-fot">Criado e desenvolvido por Pablo H. & Gustavo A.</footer>
     </div>
   );
 }

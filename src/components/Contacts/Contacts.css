@@ -1,0 +1,371 @@
+@import url('https://fonts.googleapis.com/css2?family=Alata&family=Bebas+Neue&family=Comfortaa&family=Poppins:wght@300;400;500;600&family=Quicksand&display=swap');
+
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+/* ─── CSS Variables ─── */
+.contacts {
+  --color-accent: #ffa800;
+  --color-bg: #000000;
+  --color-bg-dark: #050505;
+  --color-text-primary: #ffffff;
+  --color-text-muted: #cccccc;
+  --font-display: 'Klein Condensed Trial', 'Barlow Condensed', Impact, sans-serif;
+}
+
+/* ─── Animations ─── */
+@keyframes cabecalho {
+  from {
+    left: -800px;
+    opacity: 0;
+  }
+  to {
+    left: 0;
+    opacity: 1;
+  }
+}
+
+@keyframes particulas {
+  0% {
+    top: 0;
+  }
+  25% {
+    top: 30px;
+  }
+  50% {
+    top: 50px;
+  }
+  75% {
+    top: 30px;
+  }
+  100% {
+    top: 0;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ─── Page wrapper ─── */
+.contacts {
+  min-height: 100vh;
+  overflow-x: hidden;
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  font-family: 'Poppins', sans-serif;
+  position: relative;
+}
+
+/* ─── Particles overlay ─── */
+.particulas {
+  position: absolute;
+  left: 750px;
+  animation: particulas 7s infinite;
+  transition: 0.5s;
+  z-index: 0;
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* ─── Shared HR ─── */
+hr {
+  color: #ffffff;
+  background-color: #ffffff;
+  height: 1px;
+  border: none;
+  position: relative;
+  z-index: 2;
+}
+
+/* ─── Header (shared pattern) ─── */
+.cabecalho {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px;
+  animation-name: cabecalho;
+  animation-duration: 3s;
+  position: relative;
+  z-index: 2;
+}
+
+.cabecalho-img {
+  height: 72px;
+}
+
+.cabecalho-txt {
+  display: flex;
+  gap: 40px;
+}
+
+.cabecalho-txt-it {
+  color: #ffffff;
+  letter-spacing: 0.025em;
+  line-height: 42px;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 25px;
+  transition: color 0.3s;
+}
+
+.cabecalho-txt-it:hover {
+  color: var(--color-accent);
+}
+
+/* ─── Hero section ─── */
+.contacts-hero {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 80px 40px 60px;
+  animation: fadeInUp 1s ease both;
+}
+
+.contacts-hero h1 {
+  font-family: 'Alata', sans-serif;
+  font-size: clamp(2.5rem, 7vw, 5rem);
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.contacts-hero p {
+  font-size: 18px;
+  color: var(--color-accent);
+  margin-top: 12px;
+  font-weight: 300;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ─── Map + socials section ─── */
+.sobre-localizacao {
+  position: relative;
+  z-index: 2;
+  background-color: var(--color-bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+  padding: clamp(40px, 8vw, 100px) clamp(24px, 5vw, 72px);
+  animation: fadeInUp 1.1s ease both;
+}
+
+.mapa {
+  width: 100%;
+  max-width: 800px;
+  height: 450px;
+  border-radius: 12px;
+  display: block;
+  border: 1px solid rgba(255, 168, 0, 0.25);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+/* ─── Social icons ─── */
+.icones {
+  display: flex;
+  gap: 32px;
+  align-items: center;
+  justify-content: center;
+}
+
+.icones .instagram,
+.icones .whatsapp {
+  height: 48px;
+  width: auto;
+  transition:
+    transform 0.3s,
+    opacity 0.3s;
+  opacity: 0.85;
+}
+
+.icones .instagram:hover,
+.icones .whatsapp:hover {
+  transform: scale(1.12);
+  opacity: 1;
+}
+
+/* ─── Text links (Instagram / WhatsApp) ─── */
+.text-cont {
+  display: flex;
+  gap: 40px;
+  align-items: center;
+  justify-content: center;
+}
+
+.instawpp {
+  color: var(--color-accent);
+  text-decoration: none;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+  letter-spacing: 0.1em;
+  transition: color 0.3s;
+  text-align: center;
+}
+
+.instawpp:hover {
+  color: #ffffff;
+}
+
+/* ─── Contact info cards ─── */
+.contacts-info {
+  position: relative;
+  z-index: 2;
+  background-color: var(--color-bg-dark);
+  padding: clamp(60px, 8vw, 100px) clamp(24px, 5vw, 72px);
+  animation: fadeInUp 1.2s ease both;
+}
+
+.contacts-info h2 {
+  font-family: 'Alata', sans-serif;
+  font-size: 40px;
+  color: var(--color-accent);
+  text-transform: uppercase;
+  margin-bottom: 48px;
+  text-align: center;
+  letter-spacing: 0.05em;
+}
+
+.contacts-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 32px;
+  justify-content: center;
+}
+
+.contacts-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 168, 0, 0.3);
+  border-radius: 16px;
+  padding: 40px 32px;
+  width: 240px;
+  text-align: center;
+  transition:
+    transform 0.3s,
+    border-color 0.3s;
+  animation: fadeInUp 1.4s ease both;
+}
+
+.contacts-card:hover {
+  transform: translateY(-8px);
+  border-color: var(--color-accent);
+}
+
+.contacts-card-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.contacts-card h3 {
+  font-family: 'Alata', sans-serif;
+  font-size: 18px;
+  color: var(--color-accent);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  letter-spacing: 0.04em;
+}
+
+.contacts-card p,
+.contacts-card a {
+  font-size: 14px;
+  color: var(--color-text-muted);
+  font-weight: 300;
+  line-height: 1.6;
+  text-decoration: none;
+  transition: color 0.3s;
+  display: block;
+}
+
+.contacts-card a:hover {
+  color: var(--color-accent);
+}
+
+/* ─── Footer ─── */
+.text-fot {
+  text-align: center;
+  color: #ffffff;
+  padding: 20px;
+  position: relative;
+  z-index: 2;
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 1024px) {
+  .cabecalho {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .cabecalho-txt {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+  }
+
+  .cabecalho-txt-it {
+    font-size: 20px;
+  }
+
+  .contacts-hero h1 {
+    font-size: clamp(2rem, 8vw, 3.5rem);
+  }
+
+  .particulas {
+    left: 30%;
+    width: 80%;
+  }
+
+  .contacts-cards {
+    gap: 24px;
+  }
+}
+
+@media (max-width: 600px) {
+  .cabecalho-txt {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .cabecalho-txt-it {
+    font-size: 18px;
+  }
+
+  .contacts-hero {
+    padding: 60px 24px 40px;
+  }
+
+  .mapa {
+    height: 280px;
+  }
+
+  .text-cont {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .contacts-card {
+    width: 100%;
+    max-width: 280px;
+  }
+
+  .contacts-cards {
+    flex-direction: column;
+    align-items: center;
+  }
+}
