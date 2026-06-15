@@ -14,6 +14,11 @@ export default function Login() {
   async function handleLogin(e) {
     e.preventDefault();
 
+    if (!email || !senha) {
+      setErro("Por favor, preencha todos os campos obrigatórios.");
+      return;
+    }
+
     try {
       await signInWithEmailAndPassword(
         auth,
