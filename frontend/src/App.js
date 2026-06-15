@@ -28,11 +28,11 @@ function App() {
           <Route path="/sobre" element={<About />} />
           <Route path="/contatos" element={<Layout><Contacts /></Layout>} />
           <Route path="/login" element={<Login />} />
-          <Route path="/dashboard" element={<ProtectedRoute><Layout><Dashboard /></Layout></ProtectedRoute>} />
-          <Route path="/cervejas" element={<ProtectedRoute><Layout><CervejaCRUD /></Layout></ProtectedRoute>} />
-          <Route path="/usuarios" element={<ProtectedRoute><Layout><UsuarioCRUD /></Layout></ProtectedRoute>} />
-          <Route path="/pedidos" element={<ProtectedRoute><Layout><PedidoCRUD /></Layout></ProtectedRoute>} />
-          <Route path="/relatorio" element={<ProtectedRoute><Layout><Relatorio /></Layout></ProtectedRoute>} />
+          <Route path="/dashboard" element={<ProtectedRoute adminOnly={true}><Layout><Dashboard /></Layout></ProtectedRoute>} />
+          <Route path="/cervejas" element={<ProtectedRoute adminOnly={true}><Layout><CervejaCRUD /></Layout></ProtectedRoute>} />
+          <Route path="/usuarios" element={<ProtectedRoute adminOnly={true}><Layout><UsuarioCRUD /></Layout></ProtectedRoute>} />
+          <Route path="/pedidos" element={<ProtectedRoute adminOnly={true}><Layout><PedidoCRUD /></Layout></ProtectedRoute>} />
+          <Route path="/relatorio" element={<ProtectedRoute adminOnly={true}><Layout><Relatorio /></Layout></ProtectedRoute>} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

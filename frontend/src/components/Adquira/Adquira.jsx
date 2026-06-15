@@ -4,6 +4,7 @@ import { db } from '../../firebase';
 import { AuthContext } from '../../context/AuthContext';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Header from '../Header/Header';
+import { criarPedido } from '../../services/pedidosService';
 
 export default function Adquira() {
     const [nome, setNome] = useState('');
@@ -62,18 +63,28 @@ export default function Adquira() {
     async function handleSubmit(e) {
         e.preventDefault();
         if (!nome || !email || !cerveja) return;
-
+        // Acha a cerveja inteira na lista pra pegar o preço e o nome dela
+        const cervejaSelecionada = cervejasList.find(c => c.id === cerveja);
+        if (!cervejaSelecionada) return;
         try {
-            await addDoc(collection(db, 'pedidos'), {
-                cervejaId: cerveja,
-                usuarioId: user.uid,
-                data: new Date().toISOString()
+            // Manda no formato EXATO que o Node.js do Enrico espera
+            await criarPedido({
+                usuarioNome: nome,
+                itens: [
+                    {
+                        cervejaId: cervejaSelecionada.id,
+                        nome: cervejaSelecionada.nome,
+                        quantidade: 1,
+                        precoUnitario: cervejaSelecionada.preco
+                    }
+                ],
+                total: cervejaSelecionada.preco
             });
             alert("Pedido enviado com sucesso!");
             navigate("/inicio");
         } catch (error) {
             console.error("Erro ao fazer pedido", error);
-            alert("Erro ao enviar pedido.");
+            alert("Erro ao enviar pedido. Verifique se o servidor backend está rodando!");
         }
     }
 
@@ -182,12 +193,19 @@ export default function Adquira() {
                                 <p style={{ color: '#ddd', fontSize: '1.2rem', marginBottom: '1rem' }}>{c.abv}% ABV</p>
                                 <img
                                     src={
-                                        c.nome.toLowerCase() === 'blue dark' ? '/images/home/2_DARKBLUE.png' :
-                                            c.nome.toLowerCase() === 'forest' ? '/images/home/2_GREEN.png' :
-                                                '/images/home/MARS_BEER.png'
+                                        c.imagemUrl ? c.imagemUrl :
+                                            (c.nome.toLowerCase() === 'blue dark' ? '/images/home/2_DARKBLUE.png' :
+                                                c.nome.toLowerCase() === 'forest' ? '/images/home/2_GREEN.png' :
+                                                    '/images/home/MARS_BEER.png')
                                     }
                                     alt={c.nome}
-                                    style={{ height: '180px', objectFit: 'contain', marginTop: 'auto', marginBottom: '1rem', filter: 'drop-shadow(0 10px 10px rgba(0,0,0,0.5))' }}
+                                    style={{
+                                        height: '180px',
+                                        objectFit: 'contain',
+                                        marginTop: 'auto',
+                                        marginBottom: '1rem',
+                                        filter: 'drop-shadow(0 10px 10px rgba(0,0,0,0.5))'
+                                    }}
                                 />
                             </div>
 
