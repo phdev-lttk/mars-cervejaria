@@ -52,7 +52,13 @@ export default function UsuarioCRUD() {
 
   return (
     <div style={{ padding: '2rem' }}>
-      <Link to="/dashboard">← Voltar</Link>
+      <Link to="/dashboard" className="back-link">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        Voltar ao Dashboard
+      </Link>
       <h2>CRUD — Usuários</h2>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxWidth: '400px', marginBottom: '1rem' }}>

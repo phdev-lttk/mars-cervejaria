@@ -63,10 +63,18 @@ export default function Adquira() {
     if (!nome || !email || !cerveja) return;
 
     try {
+      const cervejaSelecionada = cervejasList.find(c => c.id === cerveja);
+      
       await addDoc(collection(db, 'pedidos'), {
         cervejaId: cerveja,
+        cervejaNome: cervejaSelecionada?.nome || '',
         usuarioId: user.uid,
-        data: new Date().toISOString()
+        usuarioNome: nome, // Salva o nome preenchido no formulário!
+        emailCliente: email,
+        total: cervejaSelecionada?.preco || 0, // Salva o valor da cerveja para aparecer no PedidoCRUD
+        status: 'pendente', // Status padrão
+        data: new Date().toISOString(),
+        criadoEm: new Date() // Para manter compatibilidade com o CRUD Admin
       });
       alert("Pedido enviado com sucesso!");
       navigate("/inicio");

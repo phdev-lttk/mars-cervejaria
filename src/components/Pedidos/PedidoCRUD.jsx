@@ -10,10 +10,23 @@ export default function PedidoCRUD() {
   const [editandoId, setEditandoId] = useState(null);
 
   async function carregar() {
-    const snapP = await getDocs(collection(db, 'pedidos'));
-    setPedidos(snapP.docs.map(d => ({ id: d.id, ...d.data() })));
     const snapU = await getDocs(collection(db, 'usuarios'));
-    setUsuarios(snapU.docs.map(d => ({ id: d.id, ...d.data() })));
+    const listaUsuarios = snapU.docs.map(d => ({ id: d.id, ...d.data() }));
+    setUsuarios(listaUsuarios);
+
+    const snapP = await getDocs(collection(db, 'pedidos'));
+    const listaPedidos = snapP.docs.map(d => {
+      const data = d.data();
+      // Tenta achar o nome do usuário pelo usuarioId se não tiver salvo diretamente (retrocompatibilidade)
+      const userDoc = listaUsuarios.find(u => u.id === data.usuarioId);
+      return { 
+        id: d.id, 
+        ...data,
+        usuarioNome: data.usuarioNome || userDoc?.nome || 'Cliente Desconhecido',
+        total: data.total || '0'
+      };
+    });
+    setPedidos(listaPedidos);
   }
 
   useEffect(() => { carregar(); }, []);
@@ -50,7 +63,13 @@ export default function PedidoCRUD() {
 
   return (
     <div style={{ padding: '2rem' }}>
-      <Link to="/dashboard">← Voltar</Link>
+      <Link to="/dashboard" className="back-link">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        Voltar ao Dashboard
+      </Link>
       <h2>CRUD — Pedidos</h2>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxWidth: '400px', marginBottom: '1rem' }}>
@@ -78,9 +97,9 @@ export default function PedidoCRUD() {
         <tbody>
           {pedidos.map(p => (
             <tr key={p.id}>
-              <td>{p.usuarioNome}</td>
+              <td>{p.usuarioNome} {p.cervejaNome ? `(${p.cervejaNome})` : ''}</td>
               <td>R$ {p.total}</td>
-              <td>{p.status}</td>
+              <td>{p.status || 'pendente'}</td>
               <td>
                 <button onClick={() => editar(p)}>Editar</button>
                 <button onClick={() => excluir(p.id)}>Excluir</button>
