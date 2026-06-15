@@ -1,55 +1,37 @@
+import axios from "axios";
 import { auth } from "../firebase";
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api";
 
-/**
- * Função utilitária para fazer requisições HTTP para a API Backend.
- * Obtém e inclui automaticamente o Token JWT do Firebase Auth.
- * 
- * @param {string} endpoint - O endpoint a ser chamado (ex: '/cervejas' ou '/pedidos')
- * @param {Object} [options={}] - Configurações padrão do fetch (method, body, headers, etc)
- * @returns {Promise<any>} Resposta JSON da API
- */
-export async function fetchAPI(endpoint, options = {}) {
-  const url = `${API_BASE_URL}${endpoint}`;
-  
-  // Garante que o header Authorization seja preenchido se o usuário estiver logado
-  const headers = {
-    "Content-Type": "application/json",
-    ...options.headers
-  };
+// Instância do axios configurada com a URL base da API
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    "Content-Type": "application/json"
+  }
+});
 
+// Interceptor de requisição: injeta o token JWT do Firebase Auth automaticamente
+api.interceptors.request.use(async (config) => {
   try {
     const currentUser = auth.currentUser;
     if (currentUser) {
       const token = await currentUser.getIdToken(true);
-      headers["Authorization"] = `Bearer ${token}`;
+      config.headers.Authorization = `Bearer ${token}`;
     }
   } catch (authError) {
     console.warn("[API SERVICE] Não foi possível recuperar o token de autenticação:", authError.message);
   }
+  return config;
+});
 
-  const config = {
-    ...options,
-    headers
-  };
-
-  if (config.body && typeof config.body === "object") {
-    config.body = JSON.stringify(config.body);
+// Interceptor de resposta: padroniza a mensagem de erro vinda do backend
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const erroMsg = error.response?.data?.erro || error.message || "Erro na requisição da API";
+    return Promise.reject(new Error(erroMsg));
   }
+);
 
-  const response = await fetch(url, config);
-
-  if (!response.ok) {
-    let erroMsg = "Erro na requisição da API";
-    try {
-      const errorData = await response.json();
-      erroMsg = errorData.erro || erroMsg;
-    } catch (_) {
-      // Falha ao ler JSON de erro
-    }
-    throw new Error(erroMsg);
-  }
-
-  return response.json();
-}
+export default api;

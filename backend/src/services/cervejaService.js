@@ -2,6 +2,16 @@ const { db, admin } = require("../firebase");
 
 const COLECAO = "cervejas";
 
+function formatarCerveja(doc) {
+    const dados = doc.data();
+    return {
+        id: doc.id,
+        ...dados,
+        criadoEm: dados.criadoEm ? dados.criadoEm.toDate() : null,
+        atualizadoEm: dados.atualizadoEm ? dados.atualizadoEm.toDate() : null,
+    };
+}
+
 async function listarCervejas(apenasDisponiveis = false) {
     let queryRef = db.collection(COLECAO);
 
@@ -12,15 +22,7 @@ async function listarCervejas(apenasDisponiveis = false) {
     queryRef = queryRef.orderBy("criadoEm", "desc");
 
     const snapshot = await queryRef.get();
-    return snapshot.docs.map((doc) => {
-        const dados = doc.data();
-        return {
-            id: doc.id,
-            ...dados,
-            criadoEm: dados.criadoEm ? dados.criadoEm.toDate() : null,
-            atualizadoEm: dados.atualizadoEm ? dados.atualizadoEm.toDate() : null,
-        };
-    });
+    return snapshot.docs.map(formatarCerveja);
 }
 
 async function buscarCervejaPorId(id) {
@@ -28,14 +30,7 @@ async function buscarCervejaPorId(id) {
     const docSnap = await docRef.get();
 
     if (!docSnap.exists) return null;
-
-    const dados = docSnap.data();
-    return {
-        id: docSnap.id,
-        ...dados,
-        criadoEm: dados.criadoEm ? dados.criadoEm.toDate() : null,
-        atualizadoEm: dados.atualizadoEm ? dados.atualizadoEm.toDate() : null,
-    };
+    return formatarCerveja(docSnap);
 }
 
 async function criarCerveja({ nome, tipo, abv, ibu, descricao, imagemUrl, preco, disponivel }) {

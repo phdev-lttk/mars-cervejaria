@@ -51,6 +51,15 @@ async function buscarPedidoPorId(id) {
     return formatarPedido(docSnap);
 }
 
+/**
+ * Verifica se o usuário é o dono do pedido ou um administrador.
+ */
+async function usuarioPodeVerPedido(pedido, uid) {
+    if (pedido.usuarioId === uid) return true;
+    const adminSnap = await db.collection("admins").doc(uid).get();
+    return adminSnap.exists;
+}
+
 async function criarPedido({ usuarioId, usuarioNome, itens, total }) {
     const novosItens = itens.map((item) => {
         if (!item.cervejaId || !item.nome || !item.quantidade || !item.precoUnitario) {
@@ -92,11 +101,23 @@ async function atualizarStatusPedido(id, novoStatus) {
     return { novoStatus };
 }
 
+async function excluirPedido(id) {
+    const docRef = db.collection(COLECAO).doc(id);
+    const docSnap = await docRef.get();
+
+    if (!docSnap.exists) return false;
+
+    await docRef.delete();
+    return true;
+}
+
 module.exports = {
     STATUS_PEDIDO,
     listarTodosPedidos,
     listarPedidosPorUsuario,
     buscarPedidoPorId,
+    usuarioPodeVerPedido,
     criarPedido,
     atualizarStatusPedido,
+    excluirPedido,
 };

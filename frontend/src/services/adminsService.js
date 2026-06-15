@@ -1,4 +1,4 @@
-import { fetchAPI } from "./api";
+import api from "./api";
 
 /**
  * Verifica se o usuário autenticado é admin.
@@ -6,8 +6,8 @@ import { fetchAPI } from "./api";
  */
 export async function verificarAdmin() {
   try {
-    const data = await fetchAPI("/admins/verificar");
-    return !!data.isAdmin;
+    const response = await api.get("/admins/verificar");
+    return !!response.data.isAdmin;
   } catch (error) {
     console.error("Erro ao verificar admin:", error.message);
     return false;
@@ -19,7 +19,8 @@ export async function verificarAdmin() {
  * @returns {Promise<Array>} Lista de admins.
  */
 export async function getAdmins() {
-  return fetchAPI("/admins");
+  const response = await api.get("/admins");
+  return response.data;
 }
 
 /**
@@ -29,11 +30,6 @@ export async function getAdmins() {
  * @returns {Promise<Object>} Admin criado.
  */
 export async function addAdmin(uid, dados) {
-  return fetchAPI("/admins", {
-    method: "POST",
-    body: {
-      uid,
-      ...dados
-    }
-  });
+  const response = await api.post("/admins", { uid, ...dados });
+  return response.data;
 }

@@ -1,30 +1,32 @@
 import { useEffect, useState } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../../firebase';
 import { Link } from 'react-router-dom';
+import { getTodosPedidos } from '../../services/pedidosService';
+import { getUsuarios } from '../../services/usuariosService';
 
 export default function Relatorio() {
   const [dados, setDados] = useState([]);
+  const [erro, setErro] = useState(null);
 
   useEffect(() => {
     async function carregar() {
-      const snapPedidos = await getDocs(collection(db, 'pedidos'));
-      const snapUsuarios = await getDocs(collection(db, 'usuarios'));
+      try {
+        const pedidos = await getTodosPedidos();
+        const usuarios = await getUsuarios();
 
-      const pedidos = snapPedidos.docs.map(d => ({ id: d.id, ...d.data() }));
-      const usuarios = snapUsuarios.docs.map(d => ({ id: d.id, ...d.data() }));
+        // JOIN: pedidos + usuarios pelo usuarioId
+        const resultado = pedidos.map(pedido => {
+          const usuario = usuarios.find(u => u.id === pedido.usuarioId);
+          return {
+            ...pedido,
+            emailCliente: usuario?.email || 'N/A',
+            telefoneCliente: usuario?.telefone || 'N/A',
+          };
+        });
 
-      // JOIN: pedidos + usuarios pelo usuarioId
-      const resultado = pedidos.map(pedido => {
-        const usuario = usuarios.find(u => u.id === pedido.usuarioId);
-        return {
-          ...pedido,
-          emailCliente: usuario?.email || 'N/A',
-          telefoneCliente: usuario?.telefone || 'N/A',
-        };
-      });
-
-      setDados(resultado);
+        setDados(resultado);
+      } catch (e) {
+        setErro(e.message);
+      }
     }
     carregar();
   }, []);
@@ -33,6 +35,8 @@ export default function Relatorio() {
     <div style={{ padding: '2rem' }}>
       <Link to="/dashboard">← Voltar</Link>
       <h2>Relatório — Pedidos por Cliente</h2>
+
+      {erro && <p style={{ color: 'red' }}>{erro}</p>}
 
       <table border="1" cellPadding="8">
         <thead>

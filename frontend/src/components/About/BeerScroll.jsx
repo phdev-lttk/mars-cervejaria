@@ -48,7 +48,7 @@ export default function BeerScroll() {
               <span className="bs-eyebrow">{beer.eyebrow}</span>
               <h2 className="bs-name">{beer.name}</h2>
               <p className="bs-desc">{beer.desc}</p>
-              <a className="bs-btn" href="/adquira-a-sua">
+              <a className="bs-btn" href={`/adquira?nome=${encodeURIComponent(beer.name)}`}>
                 Adquira a sua
               </a>
               <div className="bs-specs">

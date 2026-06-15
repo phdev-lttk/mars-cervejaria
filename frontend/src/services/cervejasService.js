@@ -1,4 +1,4 @@
-import { fetchAPI } from "./api";
+import api from "./api";
 
 /**
  * Busca todas as cervejas do catálogo da API.
@@ -6,8 +6,10 @@ import { fetchAPI } from "./api";
  * @returns {Promise<Array>} Lista de cervejas.
  */
 export async function getCervejas(apenasDisponiveis = false) {
-  const queryParam = apenasDisponiveis ? "?disponiveis=true" : "";
-  return fetchAPI(`/cervejas${queryParam}`);
+  const response = await api.get("/cervejas", {
+    params: apenasDisponiveis ? { disponiveis: true } : {}
+  });
+  return response.data;
 }
 
 /**
@@ -16,7 +18,8 @@ export async function getCervejas(apenasDisponiveis = false) {
  * @returns {Promise<Object>} Dados da cerveja.
  */
 export async function getCervejaPorId(id) {
-  return fetchAPI(`/cervejas/${id}`);
+  const response = await api.get(`/cervejas/${id}`);
+  return response.data;
 }
 
 /**
@@ -25,10 +28,8 @@ export async function getCervejaPorId(id) {
  * @returns {Promise<Object>} Cerveja criada.
  */
 export async function addCerveja(dados) {
-  return fetchAPI("/cervejas", {
-    method: "POST",
-    body: dados
-  });
+  const response = await api.post("/cervejas", dados);
+  return response.data;
 }
 
 /**
@@ -38,10 +39,8 @@ export async function addCerveja(dados) {
  * @returns {Promise<Object>} Mensagem de sucesso.
  */
 export async function updateCerveja(id, dados) {
-  return fetchAPI(`/cervejas/${id}`, {
-    method: "PUT",
-    body: dados
-  });
+  const response = await api.put(`/cervejas/${id}`, dados);
+  return response.data;
 }
 
 /**
@@ -50,7 +49,6 @@ export async function updateCerveja(id, dados) {
  * @returns {Promise<Object>} Mensagem de sucesso.
  */
 export async function deleteCerveja(id) {
-  return fetchAPI(`/cervejas/${id}`, {
-    method: "DELETE"
-  });
+  const response = await api.delete(`/cervejas/${id}`);
+  return response.data;
 }

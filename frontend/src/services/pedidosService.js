@@ -1,4 +1,4 @@
-import { fetchAPI } from "./api";
+import api from "./api";
 
 export const STATUS_PEDIDO = {
   PENDENTE: "pendente",
@@ -15,10 +15,8 @@ export const STATUS_PEDIDO = {
  * @returns {Promise<Object>} Pedido criado.
  */
 export async function criarPedido(dados) {
-  return fetchAPI("/pedidos", {
-    method: "POST",
-    body: dados
-  });
+  const response = await api.post("/pedidos", dados);
+  return response.data;
 }
 
 /**
@@ -27,7 +25,8 @@ export async function criarPedido(dados) {
  * @returns {Promise<Array>} Lista de pedidos do usuário.
  */
 export async function getPedidosPorUsuario() {
-  return fetchAPI("/pedidos/meus");
+  const response = await api.get("/pedidos/meus");
+  return response.data;
 }
 
 /**
@@ -36,8 +35,10 @@ export async function getPedidosPorUsuario() {
  * @returns {Promise<Array>} Lista de todos os pedidos.
  */
 export async function getTodosPedidos(statusFiltro) {
-  const queryParam = statusFiltro ? `?status=${statusFiltro}` : "";
-  return fetchAPI(`/pedidos${queryParam}`);
+  const response = await api.get("/pedidos", {
+    params: statusFiltro ? { status: statusFiltro } : {}
+  });
+  return response.data;
 }
 
 /**
@@ -46,7 +47,8 @@ export async function getTodosPedidos(statusFiltro) {
  * @returns {Promise<Object>} Dados do pedido.
  */
 export async function getPedidoPorId(id) {
-  return fetchAPI(`/pedidos/${id}`);
+  const response = await api.get(`/pedidos/${id}`);
+  return response.data;
 }
 
 /**
@@ -56,8 +58,16 @@ export async function getPedidoPorId(id) {
  * @returns {Promise<Object>} Mensagem de sucesso.
  */
 export async function updateStatusPedido(id, novoStatus) {
-  return fetchAPI(`/pedidos/${id}/status`, {
-    method: "PATCH",
-    body: { status: novoStatus }
-  });
+  const response = await api.patch(`/pedidos/${id}/status`, { status: novoStatus });
+  return response.data;
+}
+
+/**
+ * Remove um pedido (Requer Auth Admin).
+ * @param {string} id - ID do pedido.
+ * @returns {Promise<Object>} Mensagem de sucesso.
+ */
+export async function deletePedido(id) {
+  const response = await api.delete(`/pedidos/${id}`);
+  return response.data;
 }

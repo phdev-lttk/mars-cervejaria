@@ -1,4 +1,11 @@
 export default function TabelaGenerica({ colunas, dados, onEditar, onExcluir }) {
+  function valorDaCelula(item, col) {
+    if (typeof col.render === 'function') {
+      return col.render(item);
+    }
+    return item[col.key];
+  }
+
   return (
     <table border="1" cellPadding="8">
       <thead>
@@ -13,7 +20,7 @@ export default function TabelaGenerica({ colunas, dados, onEditar, onExcluir }) 
         {dados.map((item) => (
           <tr key={item.id}>
             {colunas.map((col, index) => (
-              <td key={index}>{item[col.key]}</td>
+              <td key={index}>{valorDaCelula(item, col)}</td>
             ))}
             <td>
               <button onClick={() => onEditar(item)}>Editar</button>

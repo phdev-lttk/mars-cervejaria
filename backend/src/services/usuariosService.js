@@ -2,18 +2,28 @@ const { db, admin } = require("../firebase");
 
 const COLECAO = "usuarios";
 
+function formatarUsuario(doc) {
+    const dados = doc.data();
+    return {
+        id: doc.id,
+        ...dados,
+        criadoEm: dados.criadoEm ? dados.criadoEm.toDate() : null,
+        atualizadoEm: dados.atualizadoEm ? dados.atualizadoEm.toDate() : null,
+    };
+}
+
+function montarEndereco(enderecoBody) {
+    const subcampos = ["rua", "numero", "complemento", "bairro", "cidade", "estado", "cep"];
+    const endObj = {};
+    subcampos.forEach((sub) => {
+        endObj[sub] = enderecoBody[sub] !== undefined ? String(enderecoBody[sub]) : "";
+    });
+    return endObj;
+}
+
 async function listarUsuarios() {
     const snapshot = await db.collection(COLECAO).orderBy("criadoEm", "desc").get();
-
-    return snapshot.docs.map((doc) => {
-        const dados = doc.data();
-        return {
-            id: doc.id,
-            ...dados,
-            criadoEm: dados.criadoEm ? dados.criadoEm.toDate() : null,
-            atualizadoEm: dados.atualizadoEm ? dados.atualizadoEm.toDate() : null,
-        };
-    });
+    return snapshot.docs.map(formatarUsuario);
 }
 
 async function buscarUsuarioPorUid(uid) {
@@ -21,7 +31,7 @@ async function buscarUsuarioPorUid(uid) {
     const docSnap = await docRef.get();
 
     if (!docSnap.exists) return null;
-    return { id: docSnap.id, ...docSnap.data() };
+    return formatarUsuario(docSnap);
 }
 
 async function criarUsuario({ uid, email, nome, telefone, endereco }) {
@@ -34,14 +44,8 @@ async function criarUsuario({ uid, email, nome, telefone, endereco }) {
         nome: nome || "",
         email,
         telefone: telefone || "",
-        endereco: endereco || {
-            rua: "",
-            numero: "",
-            complemento: "",
-            bairro: "",
-            cidade: "",
-            estado: "",
-            cep: "",
+        endereco: endereco ? montarEndereco(endereco) : {
+            rua: "", numero: "", complemento: "", bairro: "", cidade: "", estado: "", cep: "",
         },
         criadoEm: admin.firestore.FieldValue.serverTimestamp(),
         atualizadoEm: admin.firestore.FieldValue.serverTimestamp(),
@@ -51,7 +55,10 @@ async function criarUsuario({ uid, email, nome, telefone, endereco }) {
     return { uid, ...novoUsuario };
 }
 
-async function atualizarUsuario(uid, corpo) {
+/**
+ * Atualiza o perfil do próprio usuário (campos limitados: nome, telefone, endereco).
+ */
+async function atualizarPerfilProprio(uid, corpo) {
     const docRef = db.collection(COLECAO).doc(uid);
     const docSnap = await docRef.get();
 
@@ -63,14 +70,36 @@ async function atualizarUsuario(uid, corpo) {
     camposPermitidos.forEach((campo) => {
         if (corpo[campo] !== undefined) {
             if (campo === "endereco" && typeof corpo[campo] === "object") {
-                const subcampos = ["rua", "numero", "complemento", "bairro", "cidade", "estado", "cep"];
-                const endObj = {};
-                subcampos.forEach((sub) => {
-                    endObj[sub] = corpo[campo][sub] !== undefined ? String(corpo[campo][sub]) : "";
-                });
-                updates[campo] = endObj;
+                updates[campo] = montarEndereco(corpo[campo]);
             } else {
                 updates[campo] = String(corpo[campo]);
+            }
+        }
+    });
+
+    updates.atualizadoEm = admin.firestore.FieldValue.serverTimestamp();
+    await docRef.update(updates);
+    return updates;
+}
+
+/**
+ * Atualiza dados de qualquer usuário (uso administrativo: nome, email, telefone, endereco).
+ */
+async function atualizarUsuarioPorAdmin(uid, corpo) {
+    const docRef = db.collection(COLECAO).doc(uid);
+    const docSnap = await docRef.get();
+
+    if (!docSnap.exists) return null;
+
+    const updates = {};
+    const camposPermitidos = ["nome", "email", "telefone", "endereco"];
+
+    camposPermitidos.forEach((campo) => {
+        if (corpo[campo] !== undefined) {
+            if (campo === "endereco" && typeof corpo[campo] === "object") {
+                updates[campo] = montarEndereco(corpo[campo]);
+            } else {
+                updates[campo] = corpo[campo];
             }
         }
     });
@@ -94,6 +123,7 @@ module.exports = {
     listarUsuarios,
     buscarUsuarioPorUid,
     criarUsuario,
-    atualizarUsuario,
+    atualizarPerfilProprio,
+    atualizarUsuarioPorAdmin,
     excluirUsuario,
 };

@@ -1,51 +1,50 @@
-import { useEffect, useState } from 'react';
-import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc } from 'firebase/firestore';
-import { db } from '../../firebase';
+import { Fragment, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { getTodosPedidos, updateStatusPedido, deletePedido, STATUS_PEDIDO } from '../../services/pedidosService';
 
 export default function PedidoCRUD() {
   const [pedidos, setPedidos] = useState([]);
-  const [usuarios, setUsuarios] = useState([]);
-  const [form, setForm] = useState({ usuarioId: '', usuarioNome: '', total: '', status: 'pendente' });
-  const [editandoId, setEditandoId] = useState(null);
+  const [erro, setErro] = useState(null);
+  const [expandidoId, setExpandidoId] = useState(null);
 
   async function carregar() {
-    const snapP = await getDocs(collection(db, 'pedidos'));
-    setPedidos(snapP.docs.map(d => ({ id: d.id, ...d.data() })));
-    const snapU = await getDocs(collection(db, 'usuarios'));
-    setUsuarios(snapU.docs.map(d => ({ id: d.id, ...d.data() })));
+    try {
+      const dados = await getTodosPedidos();
+      setPedidos(dados);
+    } catch (e) {
+      setErro(e.message);
+    }
   }
 
   useEffect(() => { carregar(); }, []);
 
-  function selecionarUsuario(id) {
-    const u = usuarios.find(u => u.id === id);
-    setForm({ ...form, usuarioId: id, usuarioNome: u?.nome || '' });
-  }
-
-  async function salvar() {
-    if (!form.usuarioId || !form.total) {
-      alert('Selecione um usuário e informe o total');
-      return;
+  async function alterarStatus(id, novoStatus) {
+    try {
+      await updateStatusPedido(id, novoStatus);
+      carregar();
+    } catch (e) {
+      alert(e.message);
     }
-    if (editandoId) {
-      await updateDoc(doc(db, 'pedidos', editandoId), form);
-      setEditandoId(null);
-    } else {
-      await addDoc(collection(db, 'pedidos'), { ...form, criadoEm: new Date() });
-    }
-    setForm({ usuarioId: '', usuarioNome: '', total: '', status: 'pendente' });
-    carregar();
   }
 
   async function excluir(id) {
-    await deleteDoc(doc(db, 'pedidos', id));
-    carregar();
+    try {
+      await deletePedido(id);
+      carregar();
+    } catch (e) {
+      alert(e.message);
+    }
   }
 
-  function editar(p) {
-    setForm({ usuarioId: p.usuarioId, usuarioNome: p.usuarioNome, total: p.total, status: p.status });
-    setEditandoId(p.id);
+  function alternarExpandido(id) {
+    setExpandidoId(prev => (prev === id ? null : id));
+  }
+
+  function formatarData(data) {
+    if (!data) return '-';
+    const d = new Date(data);
+    if (Number.isNaN(d.getTime())) return '-';
+    return d.toLocaleString('pt-BR');
   }
 
   return (
@@ -53,40 +52,80 @@ export default function PedidoCRUD() {
       <Link to="/dashboard">← Voltar</Link>
       <h2>CRUD — Pedidos</h2>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxWidth: '400px', marginBottom: '1rem' }}>
-        <select value={form.usuarioId} onChange={e => selecionarUsuario(e.target.value)}>
-          <option value="">Selecione um usuário</option>
-          {usuarios.map(u => <option key={u.id} value={u.id}>{u.nome}</option>)}
-        </select>
-        <input placeholder="Total (R$)" type="number" value={form.total} onChange={e => setForm({ ...form, total: e.target.value })} />
-        <select value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}>
-          <option value="pendente">Pendente</option>
-          <option value="confirmado">Confirmado</option>
-          <option value="em_preparo">Em preparo</option>
-          <option value="enviado">Enviado</option>
-          <option value="entregue">Entregue</option>
-          <option value="cancelado">Cancelado</option>
-        </select>
-        <button onClick={salvar}>{editandoId ? 'Atualizar' : 'Cadastrar'}</button>
-        {editandoId && <button onClick={() => { setEditandoId(null); setForm({ usuarioId: '', usuarioNome: '', total: '', status: 'pendente' }); }}>Cancelar</button>}
-      </div>
+      {erro && <p style={{ color: 'red' }}>{erro}</p>}
 
       <table border="1" cellPadding="8">
         <thead>
-          <tr><th>Cliente</th><th>Total</th><th>Status</th><th>Ações</th></tr>
+          <tr>
+            <th>Cliente</th>
+            <th>Itens</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Criado em</th>
+            <th>Ações</th>
+          </tr>
         </thead>
         <tbody>
           {pedidos.map(p => (
-            <tr key={p.id}>
-              <td>{p.usuarioNome}</td>
-              <td>R$ {p.total}</td>
-              <td>{p.status}</td>
-              <td>
-                <button onClick={() => editar(p)}>Editar</button>
-                <button onClick={() => excluir(p.id)}>Excluir</button>
-              </td>
-            </tr>
+            <Fragment key={p.id}>
+              <tr>
+                <td>{p.usuarioNome}</td>
+                <td>
+                  <button onClick={() => alternarExpandido(p.id)}>
+                    {Array.isArray(p.itens) ? p.itens.length : 0} item(ns) {expandidoId === p.id ? '▲' : '▼'}
+                  </button>
+                </td>
+                <td>R$ {Number(p.total).toFixed(2)}</td>
+                <td>
+                  <select value={p.status} onChange={e => alterarStatus(p.id, e.target.value)}>
+                    {Object.values(STATUS_PEDIDO).map(s => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
+                  </select>
+                </td>
+                <td>{formatarData(p.criadoEm)}</td>
+                <td>
+                  <button onClick={() => excluir(p.id)}>Excluir</button>
+                </td>
+              </tr>
+              {expandidoId === p.id && (
+                <tr key={`${p.id}-detalhes`}>
+                  <td colSpan={6}>
+                    <table border="1" cellPadding="6" style={{ width: '100%' }}>
+                      <thead>
+                        <tr>
+                          <th>Cerveja</th>
+                          <th>Quantidade</th>
+                          <th>Preço unitário</th>
+                          <th>Subtotal</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {(p.itens || []).map((item, idx) => (
+                          <tr key={`${p.id}-item-${idx}`}>
+                            <td>{item.nome}</td>
+                            <td>{item.quantidade}</td>
+                            <td>R$ {Number(item.precoUnitario).toFixed(2)}</td>
+                            <td>R$ {(Number(item.quantidade) * Number(item.precoUnitario)).toFixed(2)}</td>
+                          </tr>
+                        ))}
+                        {(!p.itens || p.itens.length === 0) && (
+                          <tr>
+                            <td colSpan={4} style={{ textAlign: 'center' }}>Nenhum item.</td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+              )}
+            </Fragment>
           ))}
+          {pedidos.length === 0 && (
+            <tr>
+              <td colSpan={6} style={{ textAlign: 'center' }}>Nenhum pedido encontrado.</td>
+            </tr>
+          )}
         </tbody>
       </table>
     </div>
