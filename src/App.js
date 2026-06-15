@@ -24,9 +24,9 @@ function App() {
           <Route path="/" element={<SimOuNao />} />
           <Route path="/nao" element={<Nao />} />
           <Route path="/inicio" element={<Home />} />
-          <Route path="/adquira" element={<Adquira />} />
+          <Route path="/adquira" element={<ProtectedRoute><Layout><Adquira /></Layout></ProtectedRoute>} />
           <Route path="/sobre" element={<About />} />
-          <Route path="/contatos" element={<Contacts />} />
+          <Route path="/contatos" element={<Layout><Contacts /></Layout>} />
           <Route path="/login" element={<Layout><Login /></Layout>} />
           <Route path="/dashboard" element={<ProtectedRoute><Layout><Dashboard /></Layout></ProtectedRoute>} />
           <Route path="/cervejas" element={<ProtectedRoute><Layout><CervejaCRUD /></Layout></ProtectedRoute>} />

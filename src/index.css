@@ -166,7 +166,7 @@ tr:last-child td {
 }
 
 /* Navigation inside Dashboard */
-nav {
+.dashboard-nav {
   display: flex;
   gap: 20px;
   background: rgba(0, 0, 0, 0.3);

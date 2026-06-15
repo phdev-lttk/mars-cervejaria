@@ -10,7 +10,7 @@ const beers = [
     ibu: '42 IBU',
     abv: '6,2% ABV',
     tipo: 'Dark Ale',
-    img: '/images/home/2 DARKBLUE.png',
+    img: '/images/home/2_DARKBLUE.png',
     accent: '#1a3a5c',
   },
   {
@@ -32,7 +32,7 @@ const beers = [
     ibu: '55 IBU',
     abv: '5,5% ABV',
     tipo: 'IPA',
-    img: '/images/home/2 GREEN.png',
+    img: '/images/home/2_GREEN.png',
     accent: '#1e4a2a',
   },
 ];
@@ -48,7 +48,7 @@ export default function BeerScroll() {
               <span className="bs-eyebrow">{beer.eyebrow}</span>
               <h2 className="bs-name">{beer.name}</h2>
               <p className="bs-desc">{beer.desc}</p>
-              <a className="bs-btn" href="/adquira-a-sua">
+              <a className="bs-btn" href={`/adquira?nome=${encodeURIComponent(beer.name)}`}>
                 Adquira a sua
               </a>
               <div className="bs-specs">
