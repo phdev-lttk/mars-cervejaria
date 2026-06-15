@@ -1,0 +1,76 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ============================================
+    // CERVEJAS — Catálogo de cervejas
+    // Leitura: pública (qualquer pessoa pode ver o catálogo)
+    // Escrita: apenas administradores autenticados
+    // ============================================
+    match /cervejas/{cervejaId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // ============================================
+    // USUARIOS — Perfis de clientes
+    // Leitura/escrita: apenas o próprio usuário
+    // Admins podem ler qualquer perfil
+    // ============================================
+    match /usuarios/{userId} {
+      allow read: if request.auth != null && (request.auth.uid == userId || isAdmin());
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow update: if request.auth != null && request.auth.uid == userId;
+      allow delete: if false; // Perfis não podem ser deletados pelo cliente
+    }
+
+    // ============================================
+    // PEDIDOS — Pedidos de clientes
+    // Leitura: o dono do pedido ou admin
+    // Criar: qualquer usuário autenticado
+    // Atualizar status: apenas admin
+    // ============================================
+    match /pedidos/{pedidoId} {
+      allow read: if request.auth != null &&
+        (resource.data.usuarioId == request.auth.uid || isAdmin());
+      allow create: if request.auth != null;
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ============================================
+    // ADMINS — Controle de administradores
+    // Leitura: apenas admins
+    // Escrita: apenas super_admins
+    // ============================================
+    match /admins/{adminId} {
+      allow read: if request.auth != null && isAdmin();
+      allow write: if request.auth != null && isSuperAdmin();
+    }
+
+    // ============================================
+    // TESTE DE CONEXÃO (já existente)
+    // ============================================
+    match /testeConexao/{docId} {
+      allow read: if true;
+    }
+
+    // ============================================
+    // Funções auxiliares
+    // ============================================
+
+    // Verifica se o usuário autenticado é um admin
+    function isAdmin() {
+      return request.auth != null &&
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    // Verifica se o usuário é super_admin
+    function isSuperAdmin() {
+      return request.auth != null &&
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.role == "super_admin";
+    }
+  }
+}
