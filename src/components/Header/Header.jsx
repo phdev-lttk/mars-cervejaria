@@ -16,7 +16,7 @@ function Header() {
           <Link className="cabecalho-txt-it" to="/contatos">
             CONTATOS |
           </Link>
-          <Link className="cabecalho-txt-it" to="/adquira-a-sua">
+          <Link className="cabecalho-txt-it" to="/login">
             ADQUIRA A SUA |
           </Link>
         </nav>
