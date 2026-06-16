@@ -1089,3 +1089,48 @@ html {
         transform: scale(1.1);
     }
 }
+/* ── Aviso de login / menor de idade ── */
+.aq-login-aviso {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: rgba(255, 183, 0, 0.08);
+    border: 1px solid rgba(255, 183, 0, 0.3);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 20px;
+    color: #ccc;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.aq-login-aviso--menor {
+    background: rgba(255, 80, 80, 0.08);
+    border-color: rgba(255, 80, 80, 0.35);
+}
+
+.aq-login-aviso--menor strong {
+    color: #ff6b6b;
+}
+
+.aq-login-aviso__icon {
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.aq-login-aviso p {
+    margin: 0;
+}
+
+.aq-login-aviso__link {
+    color: #ffb700;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s;
+}
+
+.aq-login-aviso__link:hover {
+    color: #ffcf70;
+    text-decoration: underline;
+}

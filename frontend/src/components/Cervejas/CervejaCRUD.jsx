@@ -330,14 +330,14 @@ export default function CervejaCRUD() {
           />
         </div>
 
-        <label style={{ color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        {/* <label style={{ color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <input
             type="checkbox"
             checked={form.disponivel}
             onChange={e => setForm({ ...form, disponivel: e.target.checked })}
           />
           Disponível no catálogo
-        </label>
+        </label> */}
 
         <div className="admin-form-btns">
           <button className="btn-primary" onClick={salvar} disabled={uploadando}>

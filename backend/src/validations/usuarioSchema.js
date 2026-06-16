@@ -39,9 +39,17 @@ const enderecoSchema = z.object({
  * Schema para criação do perfil de usuário (POST /api/usuarios).
  * O uid e o email vêm do token autenticado, não do corpo da requisição.
  */
+// Data de nascimento: aceita formato YYYY-MM-DD (gerado pelo input[type=date]) ou string vazia.
+const dataNascimentoSchema = z
+    .string()
+    .trim()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Data de nascimento deve estar no formato YYYY-MM-DD.")
+    .refine((d) => !isNaN(new Date(d).getTime()), "Data de nascimento inválida.");
+
 const criarUsuarioSchema = z.object({
     nome: z.string().trim().max(100, "Nome deve ter no máximo 100 caracteres.").optional().default(""),
     telefone: z.union([telefoneSchema, z.literal("")]).optional().default(""),
+    dataNascimento: z.union([dataNascimentoSchema, z.literal("")]).optional().default(""),
     endereco: enderecoSchema.optional(),
 });
 
@@ -52,6 +60,7 @@ const criarUsuarioSchema = z.object({
 const atualizarPerfilProprioSchema = z.object({
     nome: z.string().trim().min(1).max(100, "Nome deve ter no máximo 100 caracteres.").optional(),
     telefone: telefoneSchema.optional(),
+    dataNascimento: z.union([dataNascimentoSchema, z.literal("")]).optional(),
     endereco: enderecoSchema.optional(),
 }).refine((dados) => Object.keys(dados).length > 0, {
     message: "Envie ao menos um campo para atualizar.",

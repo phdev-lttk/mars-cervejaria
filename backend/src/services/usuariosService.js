@@ -34,7 +34,7 @@ async function buscarUsuarioPorUid(uid) {
     return formatarUsuario(docSnap);
 }
 
-async function criarUsuario({ uid, email, nome, telefone, endereco }) {
+async function criarUsuario({ uid, email, nome, telefone, dataNascimento, endereco }) {
     const docRef = db.collection(COLECAO).doc(uid);
     const docSnap = await docRef.get();
 
@@ -44,6 +44,7 @@ async function criarUsuario({ uid, email, nome, telefone, endereco }) {
         nome: nome || "",
         email,
         telefone: telefone || "",
+        dataNascimento: dataNascimento || "",
         endereco: endereco ? montarEndereco(endereco) : {
             rua: "", numero: "", complemento: "", bairro: "", cidade: "", estado: "", cep: "",
         },
@@ -65,7 +66,7 @@ async function atualizarPerfilProprio(uid, corpo) {
     if (!docSnap.exists) return null;
 
     const updates = {};
-    const camposPermitidos = ["nome", "telefone", "endereco"];
+    const camposPermitidos = ["nome", "telefone", "dataNascimento", "endereco"];
 
     camposPermitidos.forEach((campo) => {
         if (corpo[campo] !== undefined) {

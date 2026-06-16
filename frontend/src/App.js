@@ -4,7 +4,7 @@ import About from './components/About/About';
 import Contacts from './components/Contacts/Contacts';
 import Home from './components/Home/Home';
 import Login from './components/Login/Login';
-import Layout from './components/Layout/Layout';
+import CompletarPerfil from './components/Login/CompletarPerfil';
 import AdminLayout from './components/AdminLayout/AdminLayout';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './routes/ProtectedRoute';
@@ -23,13 +23,21 @@ function App() {
       <BrowserRouter>
         <Routes>
           {/* ── Rotas públicas ── */}
-          <Route path="/" element={<SimOuNao />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/confirmar-idade" element={<SimOuNao />} />
           <Route path="/nao" element={<Nao />} />
           <Route path="/inicio" element={<Home />} />
           <Route path="/sobre" element={<About />} />
           <Route path="/contatos" element={<Contacts />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/adquira" element={<ProtectedRoute><Adquira /></ProtectedRoute>} />
+          <Route path="/adquira" element={<Adquira />} />
+
+          {/* ── Rotas protegidas (Usuário comum) ── */}
+          <Route path="/completar-perfil" element={
+            <ProtectedRoute>
+              <CompletarPerfil />
+            </ProtectedRoute>
+          } />
 
           {/* ── Rotas admin — todas usam AdminLayout com sidebar ── */}
           <Route path="/dashboard" element={

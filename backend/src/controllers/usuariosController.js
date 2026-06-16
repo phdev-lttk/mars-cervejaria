@@ -26,7 +26,7 @@ async function obterPerfil(req, res) {
 }
 
 async function criar(req, res) {
-    const { nome, telefone, endereco } = req.body;
+    const { nome, telefone, dataNascimento, endereco } = req.body;
 
     try {
         const existente = await usuariosService.buscarUsuarioPorUid(req.user.uid);
@@ -40,6 +40,7 @@ async function criar(req, res) {
             email: req.user.email,
             nome,
             telefone,
+            dataNascimento: dataNascimento || "",
             endereco,
         });
 

@@ -1,11 +1,10 @@
 import { useState, useEffect, useContext, useRef } from 'react';
-import { collection, addDoc, getDocs } from 'firebase/firestore';
-import { db } from '../../firebase';
 import { AuthContext } from '../../context/AuthContext';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Header from '../Header/Header';
 import { criarPedido } from '../../services/pedidosService';
 import { getUsuario } from '../../services/usuariosService';
+import { getCervejas } from '../../services/cervejasService';
 import './Adquira.css';
 import './Animations.css';
 import Footer from '../Footer/Footer';
@@ -18,6 +17,16 @@ function getImagemCerveja(c) {
     if (n.includes('forest')) return '/images/home/2 GREEN.png';
     if (n.includes('sol')) return '/images/home/SOL DA TARDE.png';
     return '/images/home/MARS_BEER.png';
+}
+
+function calcularIdade(dataNasc) {
+    if (!dataNasc) return null;
+    const hoje = new Date();
+    const nascimento = new Date(dataNasc);
+    let idade = hoje.getFullYear() - nascimento.getFullYear();
+    const m = hoje.getMonth() - nascimento.getMonth();
+    if (m < 0 || (m === 0 && hoje.getDate() < nascimento.getDate())) idade--;
+    return idade;
 }
 
 function formatarEndereco(end) {
@@ -175,26 +184,20 @@ export default function Adquira() {
     /* ── fetch cervejas ── */
     useEffect(() => {
         async function fetchCervejas() {
-            const snap = await getDocs(collection(db, 'cervejas'));
-            let list = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            if (list.length === 0) {
-                const padrao = [
-                    { nome: 'Blue Dark', tipo: 'Dark Ale', abv: '6.2', preco: '32.90', disponivel: true },
-                    { nome: 'Sol da Tarde', tipo: 'Lager', abv: '4.8', preco: '24.50', disponivel: true },
-                    { nome: 'Forest', tipo: 'IPA', abv: '5.5', preco: '29.90', disponivel: true },
-                ];
-                for (const c of padrao) await addDoc(collection(db, 'cervejas'), c);
-                const snap2 = await getDocs(collection(db, 'cervejas'));
-                list = snap2.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            }
-            setCervejasList(list);
-            const paramId = searchParams.get('cerveja');
-            const paramNome = searchParams.get('nome');
-            if (paramId && list.find(c => c.id === paramId)) {
-                setCarrinho({ [paramId]: 1 });
-            } else if (paramNome) {
-                const found = list.find(c => c.nome.toLowerCase() === paramNome.toLowerCase());
-                if (found) setCarrinho({ [found.id]: 1 });
+            try {
+                const list = await getCervejas();
+                setCervejasList(list);
+                
+                const paramId = searchParams.get('cerveja');
+                const paramNome = searchParams.get('nome');
+                if (paramId && list.find(c => c.id === paramId)) {
+                    setCarrinho({ [paramId]: 1 });
+                } else if (paramNome) {
+                    const found = list.find(c => c.nome.toLowerCase() === paramNome.toLowerCase());
+                    if (found) setCarrinho({ [found.id]: 1 });
+                }
+            } catch (err) {
+                console.error("Erro ao carregar cervejas", err);
             }
         }
         fetchCervejas();
@@ -223,6 +226,19 @@ export default function Adquira() {
     async function handleSubmit(e) {
         e.preventDefault();
         if (!temItens) return;
+
+        // Sem login → redireciona para /login
+        if (!user) {
+            navigate('/login');
+            return;
+        }
+
+        // Verifica idade mínima de 18 anos
+        const idade = calcularIdade(perfil?.dataNascimento);
+        if (idade !== null && idade < 18) {
+            alert('Você precisa ter 18 anos ou mais para finalizar um pedido.');
+            return;
+        }
 
         const usuarioNome = perfil?.nome || user?.email || 'Usuário';
         const itens = itensCarrinho.map(([id, quantidade]) => {
@@ -417,6 +433,33 @@ export default function Adquira() {
                     <div className="aq-order__form-wrap" data-reveal="fade-left" data-delay="200">
                         <p className="aq-order__col-label">Seus dados</p>
 
+                        {/* Aviso quando não logado */}
+                        {!user && (
+                            <div className="aq-login-aviso">
+                                <span className="aq-login-aviso__icon">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                    </svg>
+                                </span>
+                                <p>Faça <a href="/login" className="aq-login-aviso__link">login</a> ou <a href="/login" className="aq-login-aviso__link">cadastre-se</a> para finalizar seu pedido.</p>
+                            </div>
+                        )}
+
+                        {/* Aviso de menor de 18 */}
+                        {user && perfil && calcularIdade(perfil.dataNascimento) !== null && calcularIdade(perfil.dataNascimento) < 18 && (
+                            <div className="aq-login-aviso aq-login-aviso--menor">
+                                <span className="aq-login-aviso__icon">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                                        <line x1="12" y1="9" x2="12" y2="13"></line>
+                                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                                    </svg>
+                                </span>
+                                <p>Você precisa ter <strong>18 anos ou mais</strong> para fazer pedidos de bebidas alcoólicas.</p>
+                            </div>
+                        )}
+
                         {loadingPerfil ? (
                             <div className="aq-perfil-loading">
                                 <span className="aq-perfil-loading__dot" />
@@ -426,27 +469,29 @@ export default function Adquira() {
                         ) : (
                             <form className="aq-form" onSubmit={handleSubmit}>
                                 {/* Card de identificação do usuário */}
-                                <div className="aq-user-card">
-                                    <div className="aq-user-card__avatar" aria-hidden="true">
-                                        {perfil?.nome
-                                            ? perfil.nome.trim().split(' ').map(p => p[0]).slice(0, 2).join('').toUpperCase()
-                                            : (user?.email?.[0] || '?').toUpperCase()
-                                        }
-                                    </div>
-                                    <div className="aq-user-card__info">
-                                        <span className="aq-user-card__nome">
-                                            {perfil?.nome || 'Usuário'}
-                                        </span>
-                                        <span className="aq-user-card__email">
-                                            {user?.email}
-                                        </span>
-                                        {perfil?.telefone && (
-                                            <span className="aq-user-card__tel">
-                                                {perfil.telefone}
+                                {user && (
+                                    <div className="aq-user-card">
+                                        <div className="aq-user-card__avatar" aria-hidden="true">
+                                            {perfil?.nome
+                                                ? perfil.nome.trim().split(' ').map(p => p[0]).slice(0, 2).join('').toUpperCase()
+                                                : (user?.email?.[0] || '?').toUpperCase()
+                                            }
+                                        </div>
+                                        <div className="aq-user-card__info">
+                                            <span className="aq-user-card__nome">
+                                                {perfil?.nome || 'Usuário'}
                                             </span>
-                                        )}
+                                            <span className="aq-user-card__email">
+                                                {user?.email}
+                                            </span>
+                                            {perfil?.telefone && (
+                                                <span className="aq-user-card__tel">
+                                                    {perfil.telefone}
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
+                                )}
 
                                 {/* Endereço de entrega */}
                                 {enderecoFormatado && (
@@ -459,7 +504,7 @@ export default function Adquira() {
                                 <button
                                     type="submit"
                                     className="aq-submit"
-                                    disabled={!temItens}
+                                    disabled={!temItens || (!user) || (perfil && calcularIdade(perfil.dataNascimento) !== null && calcularIdade(perfil.dataNascimento) < 18)}
                                     onClick={addRipple}
                                 >
                                     <span>Confirmar pedido</span>

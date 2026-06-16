@@ -14,7 +14,7 @@ export default function SimOuNao() {
           <h1 className="age-gate__headline">Você tem<br />mais de<br />18 anos?</h1>
 
           <div className="age-gate__actions">
-            <Link to="/inicio">
+            <Link to="/adquira">
               <button className="btn-sim">Sim</button>
             </Link>
             <Link to="/nao">
