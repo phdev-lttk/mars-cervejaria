@@ -70,7 +70,7 @@ function FlipCounter({ end, prefix = '', duration = 1400 }) {
 ══════════════════════════════════ */
 function GlitchText({ children }) {
   return (
-    <span className="glitch-wrap" data-text={children}>{children}</span>
+    <span className="glitch-wrap" style={{ color: '#ffa800' }} data-text={children}>{children}</span>
   );
 }
 
