@@ -1,6 +1,7 @@
 import Header from '../Header/Header';
 import './About.css';
 import BeerScroll from './BeerScroll';
+import Footer from '../Footer/Footer';
 
 function About() {
   return (
@@ -53,7 +54,8 @@ function About() {
 
       <hr />
 
-      <footer className="text-fot">Criado e desenvolvido por Mars Design Gráfico @</footer>
+        <Footer />
+      
     </div>
   );
 }
