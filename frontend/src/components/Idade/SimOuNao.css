@@ -1,0 +1,184 @@
+@import url('https://fonts.googleapis.com/css2?family=Alata&family=Barlow+Condensed:wght@700;800;900&family=Inter:wght@300;400;600;700&display=swap');
+
+.age-gate * {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.age-gate {
+  --color-accent: #f0bc00;
+  --color-bg: #000000;
+  --font-display: 'Barlow Condensed', Impact, sans-serif;
+
+  min-height: 100vh;
+  background-color: var(--color-bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Inter', sans-serif;
+  position: relative;
+  overflow: hidden;
+  padding: 40px 24px;
+}
+
+/* ─── Background particles (same as home) ─── */
+.particulas {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 70%;
+  opacity: 0.35;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ─── Cartoon card wrapper ─── */
+.age-gate__card {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 480px;
+}
+
+.cartoon-outer {
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  border: 2px solid #ffffff;
+  transform: translate(8px, 8px);
+}
+
+.cartoon-inner {
+  position: relative;
+  border-radius: 20px;
+  border: 2px solid #ffffff;
+  padding: 48px 40px;
+  background: #0a0a0a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  text-align: center;
+}
+
+/* ─── Logo ─── */
+.age-gate__logo {
+  height: 56px;
+  width: auto;
+  margin-bottom: 36px;
+  opacity: 0.9;
+}
+
+/* ─── Eyebrow ─── */
+.age-gate .age-gate__eyebrow {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--color-accent);
+  margin-bottom: 12px;
+}
+
+/* ─── Headline ─── */
+.age-gate__headline {
+  font-family: var(--font-display);
+  font-size: clamp(4rem, 10vw, 6.5rem);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  line-height: 0.9;
+  color: #ffffff;
+  margin: 0 0 40px;
+}
+
+/* ─── Buttons ─── */
+.age-gate__actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-sim {
+  padding: 12px 48px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border-radius: 50px;
+  border: 1.5px solid var(--color-accent);
+  background-color: var(--color-accent);
+  color: #000000;
+  cursor: pointer;
+  transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.btn-sim:hover {
+  background-color: transparent;
+  color: var(--color-accent);
+  box-shadow: 0 0 0 4px rgba(240, 188, 0, 0.15);
+}
+
+.btn-nao {
+  padding: 12px 48px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border-radius: 50px;
+  border: 1.5px solid #ffffff;
+  background-color: transparent;
+  color: #ffffff;
+  cursor: pointer;
+  transition: border-color 0.3s, color 0.3s;
+}
+
+.btn-nao:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+  color: rgb(0, 0, 0);
+}
+
+/* ─── Sad face deco (Nao page) ─── */
+.age-gate__deco {
+  position: absolute;
+  right: -52px;
+  bottom: -52px;
+  height: 120px;
+  width: auto;
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+/* ─── Footer ─── */
+.text-fot {
+  position: absolute;
+  bottom: 20px;
+  z-index: 2;
+  text-align: center;
+  color: #ffffff;
+  font-size: 13px;
+  opacity: 0.35;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 600px) {
+  .cartoon-inner {
+    padding: 36px 24px;
+  }
+
+  .age-gate__headline {
+    font-size: clamp(3.5rem, 14vw, 5rem);
+  }
+
+  .age-gate__deco {
+    right: -24px;
+    bottom: -36px;
+    height: 80px;
+  }
+}
