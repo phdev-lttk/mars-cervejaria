@@ -27,12 +27,23 @@ export default function CervejaCRUD() {
   const [uploadando, setUploadando] = useState(false);
   const fileInputRef = useRef(null);
 
+  // No CervejaCRUD.jsx, troque a função carregar():
+
   async function carregar() {
     try {
       const dados = await getCervejas();
       setCervejas(dados);
+      // Persiste no localStorage como cache
+      localStorage.setItem('cervejas_cache', JSON.stringify(dados));
     } catch (e) {
-      setErro(e.message);
+      // Se falhar, tenta carregar do cache
+      const cache = localStorage.getItem('cervejas_cache');
+      if (cache) {
+        setCervejas(JSON.parse(cache));
+        setErro('Usando dados em cache (offline).');
+      } else {
+        setErro(e.message);
+      }
     }
   }
 
@@ -122,6 +133,7 @@ export default function CervejaCRUD() {
     if (!window.confirm('Excluir esta cerveja?')) return;
     try {
       await deleteCerveja(id);
+      localStorage.removeItem('cervejas_cache'); // limpa cache ao modificar
       carregar();
     } catch (e) {
       alert(e.message);
@@ -150,6 +162,8 @@ export default function CervejaCRUD() {
     setEditandoId(null);
     setForm(FORM_INICIAL);
     limparImagem();
+    localStorage.removeItem('cervejas_cache'); // limpa cache ao modificar
+    carregar();
   }
 
   return (

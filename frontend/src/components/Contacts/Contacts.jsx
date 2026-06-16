@@ -1,6 +1,7 @@
 import React from 'react';
 import Header from '../Header/Header';
 import './Contacts.css';
+import Footer from '../Footer/Footer';
 
 function Contacts() {
   return (
@@ -158,7 +159,9 @@ function Contacts() {
 
           </div>
         </section>
+
       </div>
+      <Footer />
     </>
   );
 }
