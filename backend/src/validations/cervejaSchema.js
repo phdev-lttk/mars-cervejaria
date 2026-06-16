@@ -4,7 +4,11 @@ const { z } = require("zod");
 const numero = z.coerce.number();
 
 // imagemUrl: aceita string vazia ou uma URL válida.
-const imagemUrlSchema = z.union([z.string().trim().url("URL da imagem inválida."), z.literal("")]);
+const imagemUrlSchema = z.union([
+    z.string().trim().url("URL da imagem inválida."),  // https://...
+    z.string().trim().startsWith("/"),                  // /images/...
+    z.literal(""),
+]);
 
 /**
  * Schema para criação de uma cerveja (POST /api/cervejas).

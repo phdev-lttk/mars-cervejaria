@@ -16,18 +16,22 @@ app.use(cors(corsOptions));
 
 // Middleware para processar JSON nas requisições
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+// app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Importação das rotas
 const cervejasRoutes = require("./routes/cervejas");
 const usuariosRoutes = require("./routes/usuarios");
 const pedidosRoutes = require("./routes/pedidos");
 const adminsRoutes = require("./routes/admins");
+// const uploadRoutes = require("./routes/upload");
 
 // Definição das rotas com prefixo /api
 app.use("/api/cervejas", cervejasRoutes);
 app.use("/api/usuarios", usuariosRoutes);
 app.use("/api/pedidos", pedidosRoutes);
 app.use("/api/admins", adminsRoutes);
+// app.use("/api/upload", uploadRoutes);
 
 // Rota de status simples do servidor
 app.get("/health", (req, res) => {

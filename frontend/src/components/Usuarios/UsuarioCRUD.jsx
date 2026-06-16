@@ -1,23 +1,18 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { GlitchText } from '../../UI/Animations';
 import TabelaGenerica from './TabelaGenerica';
 import { getUsuarios, updateUsuarioPorId, deleteUsuario } from '../../services/usuariosService';
 import { mascararTelefone, mascararCep } from '../../utils/mascaras';
+import '../../admin.css';
 
 const ENDERECO_INICIAL = {
-  rua: '',
-  numero: '',
-  complemento: '',
-  bairro: '',
-  cidade: '',
-  estado: '',
-  cep: '',
+  rua: '', numero: '', complemento: '',
+  bairro: '', cidade: '', estado: '', cep: '',
 };
 
 const FORM_INICIAL = {
-  nome: '',
-  email: '',
-  telefone: '',
+  nome: '', email: '', telefone: '',
   endereco: ENDERECO_INICIAL,
 };
 
@@ -39,12 +34,12 @@ export default function UsuarioCRUD() {
   useEffect(() => { carregar(); }, []);
 
   function handleEnderecoChange(campo, valor) {
-    setForm((prev) => ({ ...prev, endereco: { ...prev.endereco, [campo]: valor } }));
+    setForm(prev => ({ ...prev, endereco: { ...prev.endereco, [campo]: valor } }));
   }
 
   async function salvar() {
     if (!editandoId) {
-      alert('Novos usuários são criados pelo próprio cliente ao se cadastrar (Login/Cadastro). Aqui você pode apenas editar ou excluir.');
+      alert('Novos usuários são criados pelo próprio cliente ao se cadastrar. Aqui você pode apenas editar ou excluir.');
       return;
     }
     if (!form.nome || !form.email || !form.telefone) {
@@ -62,6 +57,7 @@ export default function UsuarioCRUD() {
   }
 
   async function excluir(id) {
+    if (!window.confirm('Excluir este usuário?')) return;
     try {
       await deleteUsuario(id);
       carregar();
@@ -106,32 +102,92 @@ export default function UsuarioCRUD() {
   ];
 
   return (
-    <div style={{ padding: '2rem' }}>
-      <Link to="/dashboard">← Voltar</Link>
-      <h2>CRUD — Usuários</h2>
+    <div className="admin-page">
 
-      {erro && <p style={{ color: 'red' }}>{erro}</p>}
+      <Link to="/dashboard" className="back-link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12" />
+          <polyline points="12 19 5 12 12 5" />
+        </svg>
+        Voltar ao Dashboard
+      </Link>
 
+      <h2 className="admin-page-title">Gerenciar <GlitchText>Usuários</GlitchText></h2>
+      <p className="admin-page-subtitle">Edite e gerencie clientes da plataforma</p>
+
+      {erro && <p style={{ color: '#ff4d4d', marginBottom: '1rem' }}>{erro}</p>}
+
+      {/* ── FORMULÁRIO DE EDIÇÃO (só aparece ao editar) ── */}
       {editandoId && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxWidth: '400px', marginBottom: '1rem' }}>
-          <input placeholder="Nome" value={form.nome} onChange={e => setForm({ ...form, nome: e.target.value })} />
-          <input placeholder="Email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
-          <input placeholder="Telefone (ex: (11) 91234-5678)" maxLength={15} value={form.telefone} onChange={e => setForm({ ...form, telefone: mascararTelefone(e.target.value) })} />
+        <div className="admin-form">
+          <p className="admin-form-title">✏️ Editando usuário</p>
 
-          <p style={{ marginTop: '0.5rem', marginBottom: 0 }}><strong>Endereço</strong></p>
-          <input placeholder="Rua" value={form.endereco.rua} onChange={e => handleEnderecoChange('rua', e.target.value)} />
-          <input placeholder="Número" value={form.endereco.numero} onChange={e => handleEnderecoChange('numero', e.target.value)} />
-          <input placeholder="Complemento" value={form.endereco.complemento} onChange={e => handleEnderecoChange('complemento', e.target.value)} />
-          <input placeholder="Bairro" value={form.endereco.bairro} onChange={e => handleEnderecoChange('bairro', e.target.value)} />
-          <input placeholder="Cidade" value={form.endereco.cidade} onChange={e => handleEnderecoChange('cidade', e.target.value)} />
-          <input placeholder="Estado (UF)" maxLength={2} value={form.endereco.estado} onChange={e => handleEnderecoChange('estado', e.target.value.toUpperCase())} />
-          <input placeholder="CEP" maxLength={9} value={form.endereco.cep} onChange={e => handleEnderecoChange('cep', mascararCep(e.target.value))} />
+          <input
+            placeholder="Nome completo"
+            value={form.nome}
+            onChange={e => setForm({ ...form, nome: e.target.value })}
+          />
+          <input
+            placeholder="E-mail"
+            type="email"
+            value={form.email}
+            onChange={e => setForm({ ...form, email: e.target.value })}
+          />
+          <input
+            placeholder="Telefone (ex: (11) 91234-5678)"
+            maxLength={15}
+            value={form.telefone}
+            onChange={e => setForm({ ...form, telefone: mascararTelefone(e.target.value) })}
+          />
 
-          <button onClick={salvar}>Atualizar</button>
-          <button onClick={cancelar}>Cancelar</button>
+          <p className="admin-form-title" style={{ marginTop: '0.5rem' }}>📍 Endereço</p>
+
+          <input
+            placeholder="Rua"
+            value={form.endereco.rua}
+            onChange={e => handleEnderecoChange('rua', e.target.value)}
+          />
+          <input
+            placeholder="Número"
+            value={form.endereco.numero}
+            onChange={e => handleEnderecoChange('numero', e.target.value)}
+          />
+          <input
+            placeholder="Complemento"
+            value={form.endereco.complemento}
+            onChange={e => handleEnderecoChange('complemento', e.target.value)}
+          />
+          <input
+            placeholder="Bairro"
+            value={form.endereco.bairro}
+            onChange={e => handleEnderecoChange('bairro', e.target.value)}
+          />
+          <input
+            placeholder="Cidade"
+            value={form.endereco.cidade}
+            onChange={e => handleEnderecoChange('cidade', e.target.value)}
+          />
+          <input
+            placeholder="Estado (UF)"
+            maxLength={2}
+            value={form.endereco.estado}
+            onChange={e => handleEnderecoChange('estado', e.target.value.toUpperCase())}
+          />
+          <input
+            placeholder="CEP"
+            maxLength={9}
+            value={form.endereco.cep}
+            onChange={e => handleEnderecoChange('cep', mascararCep(e.target.value))}
+          />
+
+          <div className="admin-form-btns">
+            <button className="btn-primary" onClick={salvar}>Atualizar</button>
+            <button className="btn-secondary" onClick={cancelar}>Cancelar</button>
+          </div>
         </div>
       )}
 
+      {/* ── TABELA ── */}
       <TabelaGenerica
         colunas={colunasTabela}
         dados={usuarios}

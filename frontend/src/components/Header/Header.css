@@ -1,48 +1,92 @@
-* {
-  padding: 0;
-  margin: 0;
-  box-sizing: border-box;
-}
-
-@keyframes cabecalho {
-  from {
-    left: -800px;
-    opacity: 0;
-  }
-
-  to {
-    left: 0;
-    opacity: 1;
-  }
-}
-
-.cabecalho {
+/* ─── Layout do header ─────────────────────────────────────────────────────── */
+.site-header {
   display: flex;
-  flex-direction: row;
   align-items: center;
   justify-content: space-between;
+  padding: 16px 32px;
+  z-index: 1000;
 
-  padding: 24px;
-  animation-name: cabecalho;
-  animation-duration: 3s;
-  position: relative;
-  z-index: 2;
+  /* Mantém o header fixo */
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  box-sizing: border-box;
+
+  /* Adiciona a animação suave */
+  transition: transform 0.3s ease-in-out;
 }
 
-.cabecalho-img {
-  height: 72px;
+/* Nova classe que será ativada pelo React quando rolar para baixo */
+.site-header--hidden {
+  transform: translateY(-100%);
 }
 
-.cabecalho-txt {
+.site-logo img {
+  height: 86px;
+  display: block;
+  margin-left: 30px;
+}
+
+.nav-pill {
+  list-style: none;
+  margin: 0;
+  padding: 6px 8px;
   display: flex;
-  gap: 40px;
+  align-items: center;
+  gap: 0;
+  border: 1px solid #ffa800;
+  border-radius: 999px;
+  position: relative;
 }
 
-.cabecalho-txt-it {
-  color: #ffffff;
-  letter-spacing: 0.025em;
-  line-height: 42px;
+.nav-pill--light {
+  border-color: #ffffff;
+}
+
+.nav-tab {
+  position: relative;
+  z-index: 1;
+  padding: 10px 24px;
+  cursor: pointer;
+}
+
+.nav-tab a,
+.nav-tab span {
+  display: block;
+  color: #fafafa;
   text-decoration: none;
+  font-size: 15px;
   font-weight: 500;
-  font-size: 25px;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  user-select: none;
+  transition: color 0.2s ease;
+}
+
+.nav-tab:hover a,
+.nav-tab:hover span {
+  color: #000000;
+}
+
+.nav-tab span {
+  cursor: pointer;
+}
+
+.nav-tab--highlight a,
+.nav-tab--highlight span {
+  color: #ffffff;
+}
+
+.nav-cursor {
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  left: 0;
+  z-index: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 1);
+  pointer-events: none;
+  /* não interfere nos eventos de mouse dos tabs */
+  list-style: none;
 }

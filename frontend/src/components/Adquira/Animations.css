@@ -1,0 +1,583 @@
+/* ════════════════════════════════════════
+   MARS CERVEJARIA — Animations.css
+   Animações de entrada, scroll reveal,
+   partículas no hero e micro-interações
+════════════════════════════════════════ */
+
+/* ── Prefer reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ════════════════════════════════════════
+   HERO — stagger de entrada
+════════════════════════════════════════ */
+.aq-hero__eyebrow,
+.aq-hero__h1,
+.aq-hero__sub,
+.aq-hero__scroll {
+    opacity: 0;
+    transform: translateY(28px);
+    animation: heroFadeUp 0.72s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.aq-hero__eyebrow {
+    animation-delay: 0.05s;
+}
+
+.aq-hero__h1 {
+    animation-delay: 0.18s;
+}
+
+.aq-hero__sub {
+    animation-delay: 0.34s;
+}
+
+.aq-hero__scroll {
+    animation-delay: 0.5s;
+}
+
+@keyframes heroFadeUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Título: cada linha aparece com clip reveal */
+.aq-hero__h1 .line-1,
+.aq-hero__h1 .line-2,
+.aq-hero__h1 .line-3 {
+    display: block;
+    overflow: hidden;
+    /* padding garante que ascendentes/descendentes não sejam cortados pelo overflow */
+    padding-top: 0.08em;
+    padding-bottom: 0.05em;
+    margin-top: -0.05em;
+    margin-bottom: -0.05em;
+}
+
+.aq-hero__h1 .line-inner {
+    display: block;
+    transform: translateY(105%);
+    animation: clipUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.aq-hero__h1 .line-1 .line-inner {
+    animation-delay: 0.18s;
+}
+
+.aq-hero__h1 .line-2 .line-inner {
+    animation-delay: 0.3s;
+}
+
+.aq-hero__h1 .line-3 .line-inner {
+    animation-delay: 0.42s;
+}
+
+@keyframes clipUp {
+    to {
+        transform: translateY(0);
+    }
+}
+
+/* ── Partículas flutuantes no hero ── */
+.aq-hero {
+    isolation: isolate;
+}
+
+.aq-hero__particles {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+}
+
+.aq-particle {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.08);
+    animation: particleDrift linear infinite;
+}
+
+.aq-particle:nth-child(1) {
+    width: 6px;
+    height: 6px;
+    left: 8%;
+    top: 60%;
+    animation-duration: 9s;
+    animation-delay: -2s;
+}
+
+.aq-particle:nth-child(2) {
+    width: 10px;
+    height: 10px;
+    left: 20%;
+    top: 30%;
+    animation-duration: 13s;
+    animation-delay: -6s;
+}
+
+.aq-particle:nth-child(3) {
+    width: 4px;
+    height: 4px;
+    left: 38%;
+    top: 70%;
+    animation-duration: 8s;
+    animation-delay: -1s;
+}
+
+.aq-particle:nth-child(4) {
+    width: 8px;
+    height: 8px;
+    left: 55%;
+    top: 20%;
+    animation-duration: 11s;
+    animation-delay: -4s;
+}
+
+.aq-particle:nth-child(5) {
+    width: 5px;
+    height: 5px;
+    left: 70%;
+    top: 55%;
+    animation-duration: 10s;
+    animation-delay: -3s;
+}
+
+.aq-particle:nth-child(6) {
+    width: 12px;
+    height: 12px;
+    left: 82%;
+    top: 40%;
+    animation-duration: 14s;
+    animation-delay: -7s;
+}
+
+.aq-particle:nth-child(7) {
+    width: 3px;
+    height: 3px;
+    left: 90%;
+    top: 75%;
+    animation-duration: 7s;
+    animation-delay: -0.5s;
+}
+
+.aq-particle:nth-child(8) {
+    width: 7px;
+    height: 7px;
+    left: 47%;
+    top: 85%;
+    animation-duration: 12s;
+    animation-delay: -5s;
+}
+
+@keyframes particleDrift {
+    0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 0;
+    }
+
+    10% {
+        opacity: 1;
+    }
+
+    90% {
+        opacity: 0.6;
+    }
+
+    100% {
+        transform: translateY(-80px) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+/* ── Texto "sua" — pulso dourado ── */
+.aq-gold {
+    animation: goldPulse 3.5s ease-in-out infinite;
+}
+
+@keyframes goldPulse {
+
+    0%,
+    100% {
+        -webkit-text-stroke-color: #000;
+    }
+
+    50% {
+        -webkit-text-stroke-color: rgba(0, 0, 0, 0.35);
+    }
+}
+
+/* ════════════════════════════════════════
+   SCROLL REVEAL — [data-reveal]
+   Classes: fade-up | fade-left | fade-right | scale-in
+════════════════════════════════════════ */
+[data-reveal] {
+    opacity: 0;
+    transition:
+        opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+[data-reveal="fade-up"] {
+    transform: translateY(40px);
+}
+
+[data-reveal="fade-left"] {
+    transform: translateX(-40px);
+}
+
+[data-reveal="fade-right"] {
+    transform: translateX(40px);
+}
+
+[data-reveal="scale-in"] {
+    transform: scale(0.92);
+}
+
+[data-reveal].revealed {
+    opacity: 1;
+    transform: none;
+}
+
+/* ════════════════════════════════════════
+   CATALOG HEADER — número animado
+════════════════════════════════════════ */
+.aq-catalog__number {
+    display: inline-block;
+    transition: transform 0.4s var(--bounce);
+}
+
+.aq-catalog__number:hover {
+    transform: scale(1.12);
+}
+
+/* ════════════════════════════════════════
+   CARD — melhorias de micro-interação
+════════════════════════════════════════ */
+
+/* ── CARD SELECIONADO: faixa recolhida, conteúdo visível ──
+   O Adquira.css original subia a faixa amarela em --sel,
+   cobrindo nome/preço. Aqui garantimos que só o hover sobe a faixa. */
+
+.aq-page .aq-card.aq-card--sel::before {
+    top: -50% !important;
+    transform: skewY(345deg) !important;
+}
+
+.aq-page .aq-card.aq-card--sel:hover::before {
+    top: -70% !important;
+    transform: skewY(390deg) !important;
+}
+
+/* Cores dos textos no estado selecionado sem hover */
+.aq-page .aq-card.aq-card--sel:not(:hover) .aq-card__abv {
+    color: rgba(255, 255, 255, 0.35) !important;
+}
+
+.aq-page .aq-card.aq-card--sel:not(:hover) .aq-card__nome {
+    color: #fff !important;
+}
+
+.aq-page .aq-card.aq-card--sel:not(:hover) .aq-card__price {
+    color: var(--yellow) !important;
+}
+
+.aq-page .aq-card.aq-card--sel:not(:hover) .aq-card__badge {
+    background: rgba(240, 188, 0, 0.12) !important;
+    border-color: rgba(240, 188, 0, 0.22) !important;
+    color: var(--yellow) !important;
+}
+
+/* Shimmer no hover */
+.aq-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(105deg,
+            transparent 40%,
+            rgba(255, 255, 255, 0.06) 50%,
+            transparent 60%);
+    background-size: 200% 100%;
+    background-position: 200% 0;
+    transition: background-position 0.6s ease;
+    z-index: 3;
+    pointer-events: none;
+    border-radius: 20px;
+}
+
+.aq-card:hover::after {
+    background-position: -200% 0;
+}
+
+/* Entrada stagger dos cards */
+.aq-card {
+    transition:
+        border-color .4s ease,
+        box-shadow .4s ease,
+        opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.aq-card.card-entering {
+    opacity: 0;
+    transform: translateY(32px) scale(0.97);
+}
+
+.aq-card.card-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+/* Stagger delay via JS inline style */
+
+/* ════════════════════════════════════════
+   FLOATING CART — wobble ao surgir
+════════════════════════════════════════ */
+@keyframes floatIn {
+    0% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(16px) scale(.92);
+    }
+
+    60% {
+        transform: translateX(-50%) translateY(-4px) scale(1.02);
+    }
+
+    80% {
+        transform: translateX(-50%) translateY(2px) scale(0.99);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0) scale(1);
+    }
+}
+
+/* Ping badge no cart */
+.aq-float-cart__lbl {
+    position: relative;
+}
+
+.aq-float-cart__lbl::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    right: -6px;
+    width: 8px;
+    height: 8px;
+    background: #000;
+    border-radius: 50%;
+    animation: ping 1.5s ease-out 0.8s infinite;
+}
+
+@keyframes ping {
+    0% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+
+    70% {
+        transform: scale(2.2);
+        opacity: 0;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 0;
+    }
+}
+
+/* ════════════════════════════════════════
+   ORDER SECTION — reveal da seção
+════════════════════════════════════════ */
+.aq-order__h2 .line-inner {
+    display: block;
+    overflow: hidden;
+}
+
+.aq-order__h2 span {
+    display: block;
+    transform: translateY(110%);
+    transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.aq-order__h2.revealed span:nth-child(1) {
+    transform: translateY(0);
+    transition-delay: 0.05s;
+}
+
+.aq-order__h2.revealed span:nth-child(2) {
+    transform: translateY(0);
+    transition-delay: 0.18s;
+}
+
+/* ════════════════════════════════════════
+   FORM — focus shake de erro + ripple no botão
+════════════════════════════════════════ */
+.aq-input.shake {
+    animation: shake 0.4s ease;
+}
+
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    20% {
+        transform: translateX(-6px);
+    }
+
+    40% {
+        transform: translateX(6px);
+    }
+
+    60% {
+        transform: translateX(-4px);
+    }
+
+    80% {
+        transform: translateX(4px);
+    }
+}
+
+/* Ripple no submit */
+.aq-submit {
+    position: relative;
+    overflow: hidden;
+}
+
+.aq-submit .ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.25);
+    transform: scale(0);
+    animation: rippleAnim 0.55s linear;
+    pointer-events: none;
+}
+
+@keyframes rippleAnim {
+    to {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+/* ════════════════════════════════════════
+   CART ROWS — slide-in
+════════════════════════════════════════ */
+.aq-cart__row {
+    animation: rowIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes rowIn {
+    from {
+        opacity: 0;
+        transform: translateX(-16px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Delay para cada row */
+.aq-cart__row:nth-child(1) {
+    animation-delay: 0.05s;
+}
+
+.aq-cart__row:nth-child(2) {
+    animation-delay: 0.12s;
+}
+
+.aq-cart__row:nth-child(3) {
+    animation-delay: 0.19s;
+}
+
+.aq-cart__row:nth-child(4) {
+    animation-delay: 0.26s;
+}
+
+.aq-cart__row:nth-child(5) {
+    animation-delay: 0.33s;
+}
+
+/* ════════════════════════════════════════
+   FOOTER — slide de cima
+════════════════════════════════════════ */
+.aq-footer__brand {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.aq-footer.revealed .aq-footer__brand {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ════════════════════════════════════════
+   QTY BTN — bounce ao clicar
+════════════════════════════════════════ */
+.aq-qty__btn:active {
+    animation: btnBounce 0.2s ease !important;
+}
+
+@keyframes btnBounce {
+    0% {
+        transform: scale(0.85);
+    }
+
+    60% {
+        transform: scale(1.15);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Badge do card — pop ao ser selecionado */
+.aq-card--sel .aq-card__badge {
+    animation: badgePop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes badgePop {
+    from {
+        transform: scale(0.7);
+    }
+
+    to {
+        transform: scale(1);
+    }
+}
+
+/* ════════════════════════════════════════
+   SCROLL PROGRESS BAR (topo da página)
+════════════════════════════════════════ */
+.aq-progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    background: #f0bc00;
+    z-index: 9999;
+    transform-origin: left;
+    transform: scaleX(0);
+    transition: transform 0.1s linear;
+    pointer-events: none;
+}

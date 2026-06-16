@@ -1,0 +1,1091 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,300;1,400&display=swap');
+
+
+/*
+  Mars Cervejaria — Adquira.css
+  Cards: efeito skewY ::before (sam_garcia2/PozpPRy) adaptado ao Mars
+  ─────────────────────────────────────────────────────────────
+  Amarelo #f0bc00 sobe do baixo no hover revelando conteúdo
+  Botão "Adicionar" desliza de baixo (top 60px → 0, opacity 0 → 1)
+  Watermark do nome via ::after + data-nome no JSX
+*/
+
+/* ════════════════════════════════════════
+   TOKENS
+════════════════════════════════════════ */
+html {
+    scroll-behavior: smooth;
+}
+
+.aq-page {
+    --yellow: #f0bc00;
+    --black: #000000;
+    --white: #FFFFFF;
+    --bg: #0d0d0d;
+    --surface: rgba(255, 255, 255, 0.04);
+    --border: rgba(255, 255, 255, 0.07);
+
+    --fd: 'Klein Condensed Trial', 'Barlow Condensed', Impact, sans-serif;
+    --fb: 'Inter', sans-serif;
+
+    --text-xl: 20px;
+    --text-base: 16px;
+    --text-sm: 14px;
+    --text-xs: 13px;
+
+    --sp1: 4px;
+    --sp2: 8px;
+    --sp3: 12px;
+    --sp4: 16px;
+    --sp5: 20px;
+    --sp6: 24px;
+    --sp8: 32px;
+    --sp10: 40px;
+    --sp12: 48px;
+    --sp16: 64px;
+    --sp20: 80px;
+
+    --r-md: 8px;
+    --r-lg: 16px;
+    --r-pill: 40px;
+    --r-full: 9999px;
+
+    --ease: 0.25s ease;
+    --bounce: 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    --shadow: 0 8px 40px rgba(0, 0, 0, 0.25);
+
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--white);
+    font-family: var(--fb);
+    font-size: var(--text-base);
+    line-height: 1.6;
+    overflow-x: clip;
+}
+
+.aq-page *,
+.aq-page *::before,
+.aq-page *::after {
+    box-sizing: border-box;
+}
+
+.aq-page h1,
+.aq-page h2,
+.aq-page h3 {
+    margin: 0;
+    text-shadow: none;
+}
+
+.aq-page p {
+    margin: 0;
+}
+
+.aq-page a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.aq-page button {
+    font-family: var(--fb);
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}
+
+.aq-page button:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.aq-page input {
+    font-family: var(--fb);
+}
+
+/* ════════════════════════════════════════
+   HERO
+════════════════════════════════════════ */
+.aq-hero {
+    background: var(--yellow);
+
+    /* Alteramos o primeiro valor (padding-top) adicionando 80px extras com calc() */
+    padding: calc(var(--sp20) + 80px) var(--sp10) calc(var(--sp20) + 40px);
+
+    position: relative;
+    overflow: hidden;
+    color: var(--black);
+}
+
+.aq-hero::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: var(--bg);
+    clip-path: ellipse(55% 100% at 50% 100%);
+}
+
+.aq-hero__eyebrow {
+    font-size: var(--text-sm);
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(0, 0, 0, 0.45);
+    margin-bottom: var(--sp4) !important;
+}
+
+.aq-hero__h1 {
+    font-family: var(--fd);
+    font-size: clamp(56px, 9vw, 130px);
+    font-weight: 900;
+    line-height: 0.9;
+    color: var(--black);
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    margin-bottom: var(--sp6);
+}
+
+.aq-gold {
+    color: transparent;
+    -webkit-text-stroke: 4px #000;
+    font-family: var(--fd);
+}
+
+.aq-hero__sub {
+    font-size: var(--text-xl);
+    color: var(--black);
+    max-width: 560px;
+    opacity: 0.65;
+    line-height: 1.5;
+    margin-bottom: var(--sp10);
+}
+
+.aq-hero__scroll {
+    display: inline-block;
+    padding: 12px 28px;
+    /* border: 1.5px solid #ffa800; */
+    background-color: var(--yellow);
+    color: var(--black);
+    text-decoration: none;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 13px;
+    letter-spacing: 0.05em;
+    border-radius: 50px;
+    width: fit-content;
+    transition:
+        background-color 0.3s,
+        color 0.3s,
+        border-color 0.3s;
+}
+
+.aq-hero__scroll:hover {
+    background-color: var(--black);
+    color: #ffa800;
+}
+
+/* ════════════════════════════════════════
+   CATALOG
+════════════════════════════════════════ */
+.aq-catalog {
+    padding: var(--sp20) var(--sp10);
+    border-bottom: 1px solid var(--border);
+}
+
+.aq-catalog__header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: var(--sp8);
+    gap: var(--sp4);
+    flex-wrap: wrap;
+}
+
+.aq-catalog__label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--yellow);
+    margin-bottom: var(--sp2);
+}
+
+.aq-catalog__number {
+    font-family: Inter, sans-serif;
+    font-weight: 900;
+    font-size: clamp(36px, 5vw, 64px);
+    text-transform: uppercase;
+    line-height: 1;
+    color: var(--white);
+}
+
+.aq-catalog__count {
+    display: block;
+    font-family: var(--fd);
+    font-size: clamp(36px, 5vw, 64px);
+    font-weight: 900;
+    text-transform: uppercase;
+    line-height: 1;
+    color: var(--white);
+}
+
+.aq-catalog__link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp2);
+    color: var(--white);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: var(--r-pill);
+    padding: var(--sp3) var(--sp6);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    transition: all var(--ease);
+}
+
+.aq-catalog__link:hover {
+    border-color: var(--white);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* ════════════════════════════════════════
+   GRID
+════════════════════════════════════════ */
+.aq-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 340px));
+    justify-content: center;
+    gap: 28px;
+}
+
+/* ════════════════════════════════════════
+   CARD — efeito skewY ::before (sam_garcia2)
+   ────────────────────────────────────────
+   Estrutura do CodePen adaptada ao Mars:
+   • fundo escuro #141414
+   • ::before = faixa amarela em top:-50% skewY(345deg)
+     → hover: top:-70% skewY(390deg)  [sobe e inclina mais]
+   • imagem no topo (z-index 1, acima do ::before)
+   • contentBox no fundo (z-index 2)
+   • botão: top:60px opacity:0 → top:0 opacity:1 no hover
+   • ::after = watermark do nome (igual "CORSAIR" no pen)
+════════════════════════════════════════ */
+.aq-card {
+    position: relative;
+    width: 100%;
+    height: 440px;
+    background: #141414;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    transition: border-color .4s ease, box-shadow .4s ease;
+}
+
+.aq-card:hover {
+    border-color: rgba(240, 188, 0, 0.5);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+}
+
+.aq-card--sel {
+    border-color: var(--yellow) !important;
+    box-shadow: 0 0 0 1px var(--yellow);
+}
+
+/* ── faixa amarela — cópia fiel do ::before do CodePen ── */
+.aq-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--yellow);
+    transform: skewY(345deg);
+    transition: top .5s ease, transform .5s ease;
+    z-index: 0;
+}
+
+.aq-card:hover::before,
+.aq-card--sel::before {
+    top: -70%;
+    transform: skewY(390deg);
+}
+
+/* ── watermark do nome — igual "CORSAIR" do CodePen ── */
+/* .aq-card::after {
+    content: attr(data-nome);
+    position: absolute;
+    bottom: 6px;
+    left: 14px;
+    font-family: var(--fd);
+    font-weight: 900;
+    font-size: 4.5em;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    color: rgba(212, 183, 171, 0.794);
+    pointer-events: none;
+    z-index: 1;
+    white-space: nowrap;
+} */
+
+/* ── imgBox — topo do card, acima da faixa amarela ── */
+.aq-card__img-wrap {
+    position: relative;
+    z-index: 1;
+    /* acima do ::before */
+    width: 100%;
+    height: 270px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 24px;
+}
+
+.aq-card__img {
+    height: 210px;
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.6));
+    transition: transform .5s ease;
+}
+
+.aq-card:hover .aq-card__img {
+    transform: translateY(-6px) scale(1.05);
+}
+
+/* badge tipo — canto superior esquerdo */
+.aq-card__badge {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    z-index: 2;
+    padding: 5px 12px;
+    border-radius: 999px;
+    background: rgba(240, 188, 0, 0.12);
+    border: 1px solid rgba(240, 188, 0, 0.22);
+    color: var(--yellow);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    transition: background .4s ease, color .4s ease, border-color .4s ease;
+}
+
+/* badge some na area amarela */
+.aq-card:hover .aq-card__badge,
+.aq-card--sel .aq-card__badge {
+    background: rgba(0, 0, 0, 0.15);
+    border-color: rgba(0, 0, 0, 0.18);
+    color: rgba(0, 0, 0, 0.6);
+}
+
+/* ── contentBox — parte inferior, sobre o amarelo ── */
+.aq-card__content {
+    position: relative;
+    z-index: 2;
+    padding: 0 22px 22px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+}
+
+.aq-card__info {
+    margin-bottom: 12px;
+}
+
+.aq-card__abv {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    color: rgba(255, 255, 255, 0.35);
+    transition: color .4s ease;
+}
+
+.aq-card:hover .aq-card__abv,
+.aq-card--sel .aq-card__abv {
+    color: #c87807;
+}
+
+.aq-card__nome {
+    font-size: 26px;
+    font-weight: 800;
+    line-height: 1.05;
+    color: var(--white);
+    margin: 0;
+    transition: color .4s ease;
+}
+
+.aq-card:hover .aq-card__nome,
+.aq-card--sel .aq-card__nome {
+    color: var(--yellow);
+}
+
+.aq-card__footer {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.aq-card__price {
+    font-size: 26px;
+    font-weight: 900;
+    font-family: var(--fb);
+    font-variant-numeric: tabular-nums;
+    color: var(--yellow);
+    line-height: 1;
+    transition: color .4s ease;
+}
+
+.aq-card:hover .aq-card__price,
+.aq-card--sel .aq-card__price {
+    color: var(--white);
+}
+
+/* ── botão Adicionar — desliza de baixo, igual .buy do CodePen ── */
+.aq-add-btn {
+    position: relative !important;
+    top: 60px !important;
+    opacity: 0 !important;
+
+    width: 100% !important;
+    height: 44px !important;
+    border-radius: 999px !important;
+    background: var(--black) !important;
+    color: var(--yellow) !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.04em !important;
+    border: none !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    transition:
+        top .45s ease,
+        opacity .45s ease,
+        transform .2s ease,
+        box-shadow .2s ease !important;
+}
+
+.aq-card:hover .aq-add-btn,
+.aq-card--sel .aq-add-btn {
+    top: 0 !important;
+    opacity: 1 !important;
+}
+
+.aq-add-btn:hover {
+    transform: scale(1.03) !important;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35) !important;
+}
+
+/* ════════════════════════════════════════
+   QTY CONTROLS — centralização corrigida
+════════════════════════════════════════ */
+.aq-qty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    height: 44px;
+    /* border: 1px solid rgba(172, 183, 20, 0.793); */
+    border-radius: 999px;
+    padding: 0 14px;
+    width: 100%;
+}
+
+.aq-qty--sm {
+    gap: 6px;
+    height: auto;
+    border: none;
+    padding: 0;
+    width: auto;
+}
+
+.aq-qty__btn {
+    width: 30px !important;
+    height: 30px !important;
+    min-width: 30px !important;
+    min-height: 30px !important;
+    border-radius: var(--r-full) !important;
+    border: 1px solid rgba(0, 0, 0, 0.25) !important;
+    background: var(--black) !important;
+    color: var(--yellow) !important;
+    font-size: 16px !important;
+    font-weight: 400 !important;
+    line-height: 1 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    transition: all var(--bounce) !important;
+    box-shadow: none !important;
+    user-select: none !important;
+}
+
+.aq-qty__btn:hover {
+    background: var(--black) !important;
+    border-color: var(--black) !important;
+    color: var(--yellow) !important;
+    transform: scale(1.1) !important;
+}
+
+.aq-qty--sm .aq-qty__btn {
+    width: 26px !important;
+    height: 26px !important;
+    min-width: 26px !important;
+    min-height: 26px !important;
+    font-size: 14px !important;
+    border-color: rgba(255, 255, 255, 0.25) !important;
+    color: var(--white) !important;
+}
+
+.aq-qty--sm .aq-qty__btn:hover {
+    background: var(--yellow) !important;
+    border-color: var(--yellow) !important;
+    color: var(--black) !important;
+}
+
+.aq-qty__val {
+    font-size: var(--text-base);
+    font-weight: 700;
+    color: #dacf3a;
+    min-width: 20px;
+    text-align: center;
+    line-height: 1;
+}
+
+.aq-qty--sm .aq-qty__val {
+    color: var(--white);
+    font-size: var(--text-sm);
+}
+
+/* ════════════════════════════════════════
+   FLOATING CART
+════════════════════════════════════════ */
+.aq-float-cart {
+    position: fixed;
+    bottom: var(--sp8);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp3);
+    background: var(--yellow);
+    color: var(--black) !important;
+    padding: var(--sp4) var(--sp8);
+    border-radius: var(--r-pill);
+    font-size: var(--text-sm);
+    font-weight: 700;
+    white-space: nowrap;
+    box-shadow: var(--shadow);
+    animation: floatIn .3s var(--bounce) both;
+    transition: transform var(--bounce);
+}
+
+.aq-float-cart:hover {
+    transform: translateX(-50%) scale(1.04);
+}
+
+.aq-float-cart__sep {
+    color: rgba(0, 0, 0, 0.3);
+}
+
+.aq-float-cart__total {
+    font-weight: 900;
+    font-size: var(--text-base);
+    font-family: var(--fb);
+    font-variant-numeric: tabular-nums;
+}
+
+.aq-float-cart__arr {
+    opacity: .55;
+}
+
+@keyframes floatIn {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(12px) scale(.96);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0) scale(1);
+    }
+}
+
+/* ════════════════════════════════════════
+   ORDER
+════════════════════════════════════════ */
+.aq-order {
+    border-top: 1px solid var(--border);
+}
+
+.aq-order__head {
+    background: var(--yellow);
+    padding: var(--sp20) var(--sp10) var(--sp16);
+    position: relative;
+    overflow: hidden;
+}
+
+.aq-order__head::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 50px;
+    background: var(--bg);
+    clip-path: ellipse(55% 100% at 50% 100%);
+}
+
+.aq-order__h2 {
+    font-family: var(--fd);
+    font-size: clamp(48px, 8vw, 110px);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    line-height: 0.9;
+    color: var(--black);
+    margin-bottom: var(--sp4);
+}
+
+.aq-order__sub {
+    font-size: var(--text-sm);
+    color: rgba(0, 0, 0, 0.5);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+}
+
+.aq-order__inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: var(--bg);
+    padding: var(--sp12) var(--sp10);
+    gap: var(--sp16);
+}
+
+.aq-order__col-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--yellow);
+    margin-bottom: var(--sp6);
+    display: flex;
+    align-items: center;
+    gap: var(--sp2);
+}
+
+.aq-order__col-label::before {
+    content: '';
+    display: block;
+    width: 20px;
+    height: 2px;
+    background: var(--yellow);
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+
+.aq-empty {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: var(--sp8);
+}
+
+.aq-empty__txt {
+    font-size: var(--text-sm);
+    color: rgba(255, 255, 255, 0.4);
+    line-height: 1.7;
+    font-style: italic;
+}
+
+.aq-cart {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.aq-cart__row {
+    display: flex;
+    align-items: center;
+    gap: var(--sp3);
+    padding: var(--sp4) 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.aq-cart__info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.aq-cart__name {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--white);
+}
+
+.aq-cart__tipo {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.35);
+    letter-spacing: 0.04em;
+}
+
+.aq-cart__price {
+    font-size: var(--text-base);
+    font-weight: 700;
+    color: var(--white);
+    min-width: 80px;
+    text-align: right;
+    line-height: 1;
+    font-family: var(--fb);
+    font-variant-numeric: tabular-nums;
+}
+
+/* qty no resumo (fundo escuro) */
+.aq-order .aq-qty {
+    border-color: rgba(255, 255, 255, 0.12);
+    width: auto;
+}
+
+.aq-order .aq-qty__btn {
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    color: var(--white) !important;
+}
+
+.aq-order .aq-qty__btn:hover {
+    background: var(--yellow) !important;
+    border-color: var(--yellow) !important;
+    color: var(--black) !important;
+}
+
+.aq-order .aq-qty__val {
+    color: var(--yellow) !important;
+}
+
+.aq-cart__total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding-top: var(--sp5);
+    margin-top: var(--sp2);
+}
+
+.aq-cart__total-lbl {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: rgba(255, 255, 255, 0.35);
+}
+
+/* FIX: Inter no total — nunca Klein Trial (evita watermark Zetafonts) */
+.aq-cart__total-val {
+    font-family: var(--fb);
+    font-size: clamp(32px, 3.5vw, 48px);
+    font-weight: 900;
+    color: var(--yellow);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ── form ── */
+.aq-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp5);
+}
+
+.aq-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp2);
+}
+
+.aq-field label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.aq-input {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    height: 48px !important;
+    padding: 0 var(--sp4) !important;
+    border: 1px solid var(--border) !important;
+    background: var(--surface) !important;
+    color: var(--white) !important;
+    font-family: var(--fb) !important;
+    font-size: var(--text-base) !important;
+    font-weight: 400 !important;
+    border-radius: var(--r-md) !important;
+    transition: border-color var(--ease), background var(--ease) !important;
+}
+
+.aq-input:focus {
+    outline: none !important;
+    border-color: var(--yellow) !important;
+    background: rgba(240, 188, 0, 0.05) !important;
+}
+
+.aq-input::placeholder {
+    color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.aq-submit {
+    margin-top: var(--sp3) !important;
+    height: 56px !important;
+    padding: 0 var(--sp8) !important;
+    width: 100% !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    background: var(--black) !important;
+    color: var(--yellow) !important;
+    border: 1px solid var(--yellow) !important;
+    border-radius: var(--r-pill) !important;
+    font-family: var(--fb) !important;
+    font-size: var(--text-base) !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all var(--bounce) !important;
+    box-shadow: none !important;
+}
+
+.aq-submit:hover:not(:disabled) {
+    background: var(--yellow) !important;
+    color: var(--black) !important;
+    transform: scale(1.02) !important;
+}
+
+.aq-submit:disabled {
+    opacity: .25 !important;
+    cursor: not-allowed !important;
+}
+
+.aq-submit__arr {
+    font-size: 22px;
+    font-weight: 300;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+}
+
+/* ════════════════════════════════════════
+   FOOTER
+════════════════════════════════════════ */
+.aq-footer {
+    background: var(--yellow);
+    padding: var(--sp10) var(--sp10) var(--sp6);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--sp4);
+}
+
+.aq-footer__brand {
+    font-family: var(--fd);
+    font-size: clamp(32px, 5vw, 56px);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    color: var(--black);
+    line-height: 1;
+}
+
+.aq-footer__copy {
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.45);
+}
+
+/* ════════════════════════════════════════
+   RESPONSIVE
+════════════════════════════════════════ */
+@media (max-width: 960px) {
+    .aq-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .aq-order__inner {
+        grid-template-columns: 1fr;
+        gap: var(--sp10);
+    }
+}
+
+@media (max-width: 600px) {
+
+    .aq-hero,
+    .aq-catalog,
+    .aq-order__head,
+    .aq-order__inner,
+    .aq-footer {
+        padding-left: var(--sp6);
+        padding-right: var(--sp6);
+    }
+
+    .aq-grid {
+        grid-template-columns: 1fr;
+        gap: var(--sp4);
+    }
+
+    .aq-float-cart {
+        width: calc(100% - var(--sp8));
+        justify-content: center;
+    }
+
+    .aq-card {
+        height: 420px;
+    }
+}
+
+/* ════════════════════════════════════════
+   USER CARD — dados do usuário logado
+════════════════════════════════════════ */
+.aq-user-card {
+    display: flex;
+    align-items: center;
+    gap: var(--sp4);
+    padding: var(--sp5) var(--sp6);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    margin-bottom: var(--sp4);
+    transition: border-color var(--ease);
+}
+
+.aq-user-card:hover {
+    border-color: rgba(240, 188, 0, 0.3);
+}
+
+.aq-user-card__avatar {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    border-radius: 50%;
+    background: var(--yellow);
+    color: var(--black);
+    font-size: 16px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    letter-spacing: 0.02em;
+    flex-shrink: 0;
+}
+
+.aq-user-card__info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    overflow: hidden;
+}
+
+.aq-user-card__nome {
+    font-size: var(--text-base);
+    font-weight: 700;
+    color: var(--white);
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.aq-user-card__email {
+    font-size: var(--text-sm);
+    color: rgba(255, 255, 255, 0.4);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.aq-user-card__tel {
+    font-size: var(--text-xs);
+    color: rgba(240, 188, 0, 0.6);
+    margin-top: 1px;
+}
+
+/* ── Endereço de entrega ── */
+.aq-user-endereco {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp1);
+    padding: var(--sp4) var(--sp5);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    margin-bottom: var(--sp4);
+}
+
+.aq-user-endereco__label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--yellow);
+    opacity: 0.7;
+}
+
+.aq-user-endereco__val {
+    font-size: var(--text-sm);
+    color: rgba(255, 255, 255, 0.55);
+    line-height: 1.5;
+}
+
+/* ── Loading dots ── */
+.aq-perfil-loading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: var(--sp8) 0;
+}
+
+.aq-perfil-loading__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--yellow);
+    opacity: 0.4;
+    animation: dotPulse 1.2s ease-in-out infinite;
+}
+
+.aq-perfil-loading__dot:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.aq-perfil-loading__dot:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes dotPulse {
+
+    0%,
+    100% {
+        opacity: 0.2;
+        transform: scale(0.8);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+}

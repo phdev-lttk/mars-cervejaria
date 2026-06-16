@@ -5,6 +5,7 @@ import Contacts from './components/Contacts/Contacts';
 import Home from './components/Home/Home';
 import Login from './components/Login/Login';
 import Layout from './components/Layout/Layout';
+import AdminLayout from './components/AdminLayout/AdminLayout';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './routes/ProtectedRoute';
 import Dashboard from './components/Dashboard/Dashboard';
@@ -21,18 +22,41 @@ function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
+          {/* ── Rotas públicas ── */}
           <Route path="/" element={<SimOuNao />} />
           <Route path="/nao" element={<Nao />} />
           <Route path="/inicio" element={<Home />} />
-          <Route path="/adquira" element={<ProtectedRoute><Adquira /></ProtectedRoute>} />
           <Route path="/sobre" element={<About />} />
-          <Route path="/contatos" element={<Layout><Contacts /></Layout>} />
+          <Route path="/contatos" element={<Contacts />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/dashboard" element={<ProtectedRoute adminOnly={true}><Layout><Dashboard /></Layout></ProtectedRoute>} />
-          <Route path="/cervejas" element={<ProtectedRoute adminOnly={true}><Layout><CervejaCRUD /></Layout></ProtectedRoute>} />
-          <Route path="/usuarios" element={<ProtectedRoute adminOnly={true}><Layout><UsuarioCRUD /></Layout></ProtectedRoute>} />
-          <Route path="/pedidos" element={<ProtectedRoute adminOnly={true}><Layout><PedidoCRUD /></Layout></ProtectedRoute>} />
-          <Route path="/relatorio" element={<ProtectedRoute adminOnly={true}><Layout><Relatorio /></Layout></ProtectedRoute>} />
+          <Route path="/adquira" element={<ProtectedRoute><Adquira /></ProtectedRoute>} />
+
+          {/* ── Rotas admin — todas usam AdminLayout com sidebar ── */}
+          <Route path="/dashboard" element={
+            <ProtectedRoute adminOnly={true}>
+              <AdminLayout><Dashboard /></AdminLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="/cervejas" element={
+            <ProtectedRoute adminOnly={true}>
+              <AdminLayout><CervejaCRUD /></AdminLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="/usuarios" element={
+            <ProtectedRoute adminOnly={true}>
+              <AdminLayout><UsuarioCRUD /></AdminLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="/pedidos" element={
+            <ProtectedRoute adminOnly={true}>
+              <AdminLayout><PedidoCRUD /></AdminLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="/relatorio" element={
+            <ProtectedRoute adminOnly={true}>
+              <AdminLayout><Relatorio /></AdminLayout>
+            </ProtectedRoute>
+          } />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

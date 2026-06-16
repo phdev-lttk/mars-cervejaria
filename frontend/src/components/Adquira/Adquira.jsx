@@ -1,236 +1,477 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useRef } from 'react';
 import { collection, addDoc, getDocs } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { AuthContext } from '../../context/AuthContext';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Header from '../Header/Header';
 import { criarPedido } from '../../services/pedidosService';
+import { getUsuario } from '../../services/usuariosService';
+import './Adquira.css';
+import './Animations.css';
+import Footer from '../Footer/Footer';
 
+/* ─── helpers ─────────────────────────────────── */
+function getImagemCerveja(c) {
+    if (c.imagemUrl) return c.imagemUrl;
+    const n = c.nome.toLowerCase();
+    if (n.includes('blue dark') || n.includes('dark')) return '/images/home/2 DARKBLUE.png';
+    if (n.includes('forest')) return '/images/home/2 GREEN.png';
+    if (n.includes('sol')) return '/images/home/SOL DA TARDE.png';
+    return '/images/home/MARS_BEER.png';
+}
+
+function formatarEndereco(end) {
+    if (!end) return null;
+    const partes = [
+        end.rua && `${end.rua}${end.numero ? ', ' + end.numero : ''}`,
+        end.complemento,
+        end.bairro,
+        end.cidade && end.estado ? `${end.cidade} — ${end.estado}` : (end.cidade || end.estado),
+        end.cep,
+    ].filter(Boolean);
+    return partes.join(' · ');
+}
+
+/* ─── Ripple util ──────────────────────────────── */
+function addRipple(e) {
+    const btn = e.currentTarget;
+    const circle = document.createElement('span');
+    const diameter = Math.max(btn.clientWidth, btn.clientHeight);
+    const rect = btn.getBoundingClientRect();
+    circle.className = 'ripple';
+    circle.style.cssText = `
+        width:${diameter}px; height:${diameter}px;
+        left:${e.clientX - rect.left - diameter / 2}px;
+        top:${e.clientY - rect.top - diameter / 2}px;
+    `;
+    btn.appendChild(circle);
+    circle.addEventListener('animationend', () => circle.remove());
+}
+
+/* ─── Hook: scroll reveal ──────────────────────── */
+function useScrollReveal() {
+    useEffect(() => {
+        const targets = document.querySelectorAll('[data-reveal]');
+        const io = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        const el = entry.target;
+                        const delay = Number(el.dataset.delay || 0);
+                        setTimeout(() => el.classList.add('revealed'), delay);
+                        io.unobserve(el);
+                    }
+                });
+            },
+            { threshold: 0.12 }
+        );
+        targets.forEach((el) => io.observe(el));
+        return () => io.disconnect();
+    });
+}
+
+/* ─── Hook: progress bar ───────────────────────── */
+function useScrollProgress() {
+    useEffect(() => {
+        const bar = document.getElementById('aq-progress');
+        if (!bar) return;
+        const onScroll = () => {
+            const max = document.body.scrollHeight - window.innerHeight;
+            bar.style.transform = `scaleX(${window.scrollY / max})`;
+        };
+        window.addEventListener('scroll', onScroll, { passive: true });
+        return () => window.removeEventListener('scroll', onScroll);
+    }, []);
+}
+
+/* ─── Hook: stagger cards ──────────────────────── */
+const _animatedCards = new Set();
+
+function useCardStagger(cervejasList) {
+    useEffect(() => {
+        if (!cervejasList.length) return;
+        const cards = document.querySelectorAll('.aq-card');
+        cards.forEach((el) => {
+            const key = el.dataset.idx;
+            if (_animatedCards.has(key)) {
+                el.classList.remove('card-entering');
+                el.classList.add('card-visible');
+            } else {
+                el.classList.add('card-entering');
+            }
+        });
+        const io = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        const el = entry.target;
+                        const key = el.dataset.idx;
+                        const idx = Number(key || 0);
+                        setTimeout(() => {
+                            el.classList.remove('card-entering');
+                            el.classList.add('card-visible');
+                            _animatedCards.add(key);
+                        }, idx * 100);
+                        io.unobserve(el);
+                    }
+                });
+            },
+            { threshold: 0.1 }
+        );
+        cards.forEach((el) => {
+            if (!_animatedCards.has(el.dataset.idx)) io.observe(el);
+        });
+        return () => io.disconnect();
+    }, [cervejasList]);
+}
+
+/* ═══════════════════════════════════════════════
+   COMPONENTE PRINCIPAL
+═══════════════════════════════════════════════ */
 export default function Adquira() {
-    const [nome, setNome] = useState('');
-    const [email, setEmail] = useState('');
-    const [cerveja, setCerveja] = useState('');
     const [cervejasList, setCervejasList] = useState([]);
+    const [carrinho, setCarrinho] = useState({});
+    const [perfil, setPerfil] = useState(null);
+    const [loadingPerfil, setLoadingPerfil] = useState(true);
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
+    const orderH2Ref = useRef(null);
 
+    /* ── animações ── */
+    useScrollReveal();
+    useScrollProgress();
+    useCardStagger(cervejasList);
+
+    /* ── reveal do h2 de order ── */
+    useEffect(() => {
+        if (!orderH2Ref.current) return;
+        const io = new IntersectionObserver(([e]) => {
+            if (e.isIntersecting) {
+                orderH2Ref.current.classList.add('revealed');
+                io.disconnect();
+            }
+        }, { threshold: 0.3 });
+        io.observe(orderH2Ref.current);
+        return () => io.disconnect();
+    }, []);
+
+    /* ── busca perfil do usuário logado ── */
+    useEffect(() => {
+        async function fetchPerfil() {
+            try {
+                const dados = await getUsuario();
+                setPerfil(dados);
+            } catch (err) {
+                console.error('Erro ao buscar perfil:', err);
+            } finally {
+                setLoadingPerfil(false);
+            }
+        }
+        if (user) fetchPerfil();
+        else setLoadingPerfil(false);
+    }, [user]);
+
+    /* ── fetch cervejas ── */
     useEffect(() => {
         async function fetchCervejas() {
             const snap = await getDocs(collection(db, 'cervejas'));
             let list = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-            // AUTO-SEEDING: Se o banco estiver vazio, cria as 3 cervejas verdadeiras
             if (list.length === 0) {
-                console.log("Banco vazio! Criando cervejas padrão...");
-                const cervejasPadrao = [
+                const padrao = [
                     { nome: 'Blue Dark', tipo: 'Dark Ale', abv: '6.2', preco: '32.90', disponivel: true },
                     { nome: 'Sol da Tarde', tipo: 'Lager', abv: '4.8', preco: '24.50', disponivel: true },
-                    { nome: 'Forest', tipo: 'IPA', abv: '5.5', preco: '29.90', disponivel: true }
+                    { nome: 'Forest', tipo: 'IPA', abv: '5.5', preco: '29.90', disponivel: true },
                 ];
-
-                for (const c of cervejasPadrao) {
-                    await addDoc(collection(db, 'cervejas'), c);
-                }
-
-                // Refetch after seeding
-                const newSnap = await getDocs(collection(db, 'cervejas'));
-                list = newSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                for (const c of padrao) await addDoc(collection(db, 'cervejas'), c);
+                const snap2 = await getDocs(collection(db, 'cervejas'));
+                list = snap2.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             }
-
             setCervejasList(list);
-
-            // Pre-select beer from URL if available by exact name or ID
-            const cervejaParamId = searchParams.get('cerveja');
-            const cervejaParamNome = searchParams.get('nome');
-
-            if (cervejaParamId) {
-                setCerveja(cervejaParamId);
-            } else if (cervejaParamNome) {
-                const found = list.find(c => c.nome.toLowerCase() === cervejaParamNome.toLowerCase());
-                if (found) {
-                    setCerveja(found.id);
-                } else if (list.length > 0) {
-                    setCerveja(list[0].id);
-                }
-            } else if (list.length > 0) {
-                setCerveja(list[0].id);
+            const paramId = searchParams.get('cerveja');
+            const paramNome = searchParams.get('nome');
+            if (paramId && list.find(c => c.id === paramId)) {
+                setCarrinho({ [paramId]: 1 });
+            } else if (paramNome) {
+                const found = list.find(c => c.nome.toLowerCase() === paramNome.toLowerCase());
+                if (found) setCarrinho({ [found.id]: 1 });
             }
         }
         fetchCervejas();
     }, [searchParams]);
 
+    /* ── carrinho ── */
+    function alterarQtd(id, delta) {
+        setCarrinho(prev => {
+            const nova = (prev[id] || 0) + delta;
+            if (nova <= 0) { const { [id]: _, ...rest } = prev; return rest; }
+            return { ...prev, [id]: nova };
+        });
+    }
+
+    function totalCarrinho() {
+        return Object.entries(carrinho).reduce((acc, [id, qtd]) => {
+            const c = cervejasList.find(c => c.id === id);
+            return acc + (c ? parseFloat(c.preco) * qtd : 0);
+        }, 0);
+    }
+
+    const itensCarrinho = Object.entries(carrinho).filter(([, q]) => q > 0);
+    const temItens = itensCarrinho.length > 0;
+
+    /* ── submit ── */
     async function handleSubmit(e) {
         e.preventDefault();
-        if (!nome || !email || !cerveja) return;
-        // Acha a cerveja inteira na lista pra pegar o preço e o nome dela
-        const cervejaSelecionada = cervejasList.find(c => c.id === cerveja);
-        if (!cervejaSelecionada) return;
+        if (!temItens) return;
+
+        const usuarioNome = perfil?.nome || user?.email || 'Usuário';
+        const itens = itensCarrinho.map(([id, quantidade]) => {
+            const c = cervejasList.find(c => c.id === id);
+            return { cervejaId: c.id, nome: c.nome, quantidade, precoUnitario: c.preco };
+        });
         try {
-            // Manda no formato EXATO que o Node.js do Enrico espera
-            await criarPedido({
-                usuarioNome: nome,
-                itens: [
-                    {
-                        cervejaId: cervejaSelecionada.id,
-                        nome: cervejaSelecionada.nome,
-                        quantidade: 1,
-                        precoUnitario: cervejaSelecionada.preco
-                    }
-                ],
-                total: cervejaSelecionada.preco
-            });
-            alert("Pedido enviado com sucesso!");
-            navigate("/inicio");
-        } catch (error) {
-            console.error("Erro ao fazer pedido", error);
-            alert("Erro ao enviar pedido. Verifique se o servidor backend está rodando!");
+            await criarPedido({ usuarioNome, itens, total: totalCarrinho().toFixed(2) });
+            alert('Pedido enviado com sucesso!');
+            navigate('/inicio');
+        } catch (err) {
+            console.error(err);
+            alert('Erro ao enviar pedido. Verifique se o servidor backend está rodando!');
         }
     }
 
-    function handleSelectFromCatalog(id) {
-        setCerveja(id);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    const enderecoFormatado = perfil?.endereco ? formatarEndereco(perfil.endereco) : null;
 
+    /* ══════════════════════════════════════════
+       RENDER
+    ══════════════════════════════════════════ */
     return (
+        <div className="aq-page">
+            <div className="aq-progress-bar" id="aq-progress" />
 
-        <div style={{ display: 'flex', flexDirection: 'column', minHeight: 'calc(100vh - 122px)', padding: '2rem 0' }}>
             <Header />
 
-            {/* Top Section: Form and Image */}
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '5rem', flexWrap: 'wrap', padding: '0 2rem' }}>
-                {/* Container do Formulário */}
-                <div style={{
-                    background: 'rgba(0,0,0,0.4)',
-                    padding: '3rem 4rem',
-                    borderRadius: '20px',
-                    backdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    textAlign: 'center',
-                    width: '100%',
-                    maxWidth: '450px',
-                    boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)'
-                }}>
-                    <img src="/images/icons/logobranca.svg" alt="logomars" style={{ height: '70px', marginBottom: '1rem' }} />
-                    <h2 style={{ fontSize: '32px', color: '#ffb142', marginBottom: '2.5rem', fontFamily: 'Alata, sans-serif' }}>Adquira a sua</h2>
-
-                    <form style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', textAlign: 'left' }} onSubmit={handleSubmit}>
-                        <div>
-                            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: '#fff' }}>Nome Completo</label>
-                            <input type="text" placeholder="Insira seu nome" value={nome} onChange={e => setNome(e.target.value)} required style={{ width: '100%', padding: '14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.05)', color: '#fff', fontSize: '1rem' }} />
-                        </div>
-
-                        <div>
-                            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: '#fff' }}>Email</label>
-                            <input type="email" placeholder="Insira seu email" value={email} onChange={e => setEmail(e.target.value)} required style={{ width: '100%', padding: '14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.05)', color: '#fff', fontSize: '1rem' }} />
-                        </div>
-
-                        <div>
-                            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: '#fff' }}>Cerveja Escolhida</label>
-                            <select value={cerveja} onChange={e => setCerveja(e.target.value)} required style={{ width: '100%', padding: '14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(20,20,20,0.8)', color: '#fff', fontSize: '1rem', cursor: 'pointer' }}>
-                                <option value="" disabled>Selecione uma cerveja...</option>
-                                {cervejasList.map(c => (
-                                    <option key={c.id} value={c.id}>{c.nome} ({c.tipo}) - R$ {c.preco}</option>
-                                ))}
-                            </select>
-                        </div>
-
-                        <button type="submit" style={{
-                            marginTop: '1.5rem',
-                            padding: '16px',
-                            fontSize: '18px',
-                            background: 'linear-gradient(135deg, #ffb700, #ff8c00)',
-                            color: '#111',
-                            fontWeight: 'bold',
-                            border: 'none',
-                            borderRadius: '10px',
-                            cursor: 'pointer',
-                            transition: 'transform 0.3s',
-                            boxShadow: '0 4px 15px rgba(255, 183, 0, 0.3)'
-                        }} onMouseOver={e => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseOut={e => e.currentTarget.style.transform = 'translateY(0)'}>
-                            CONFIRMAR PEDIDO
-                        </button>
-                    </form>
-                </div>
-
-                {/* Imagem das Cervejas */}
-                <img src="/images/home/3_MARS_BEER.png" alt="cervejasmars" style={{
-                    maxWidth: '100%',
-                    height: 'auto',
-                    maxHeight: '600px',
-                    filter: 'drop-shadow(20px 20px 20px rgba(0,0,0,0.5))',
-                    animation: 'fadeInUp 1s ease-out'
-                }} />
-            </div>
-
-            {/* Catálogo Dinâmico Section */}
-            <div style={{ marginTop: '5rem', padding: '0 4rem', width: '100%', maxWidth: '1200px', margin: '5rem auto 0' }}>
-                <h2 style={{ fontSize: '2.5rem', textAlign: 'center', marginBottom: '3rem', fontFamily: 'Alata, sans-serif' }}>Catálogo Mars</h2>
-
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
-                    {cervejasList.map(c => (
-                        <div key={c.id} style={{
-                            background: 'rgba(0,0,0,0.4)',
-                            borderRadius: '15px',
-                            padding: '2rem',
-                            backdropFilter: 'blur(10px)',
-                            border: '1px solid rgba(255, 177, 66, 0.2)',
-                            boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
-                            transition: 'transform 0.3s, box-shadow 0.3s',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            justifyContent: 'space-between'
-                        }}
-                            onClick={() => handleSelectFromCatalog(c.id)}
-                            onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-10px)'; e.currentTarget.style.boxShadow = '0 10px 25px rgba(255, 177, 66, 0.3)'; }}
-                            onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 15px rgba(0,0,0,0.2)'; }}>
-
-                            <div style={{ textAlign: 'center', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                <span style={{ color: '#ffb142', fontWeight: 'bold', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '2px' }}>{c.tipo}</span>
-                                <h3 style={{ fontSize: '2rem', margin: '0.5rem 0', fontFamily: 'Alata, sans-serif' }}>{c.nome}</h3>
-                                <p style={{ color: '#ddd', fontSize: '1.2rem', marginBottom: '1rem' }}>{c.abv}% ABV</p>
-                                <img
-                                    src={
-                                        c.imagemUrl ? c.imagemUrl :
-                                            (c.nome.toLowerCase() === 'blue dark' ? '/images/home/2_DARKBLUE.png' :
-                                                c.nome.toLowerCase() === 'forest' ? '/images/home/2_GREEN.png' :
-                                                    '/images/home/MARS_BEER.png')
-                                    }
-                                    alt={c.nome}
-                                    style={{
-                                        height: '180px',
-                                        objectFit: 'contain',
-                                        marginTop: 'auto',
-                                        marginBottom: '1rem',
-                                        filter: 'drop-shadow(0 10px 10px rgba(0,0,0,0.5))'
-                                    }}
-                                />
-                            </div>
-
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1.5rem' }}>
-                                <span style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#fff' }}>R$ {c.preco}</span>
-                                <button style={{
-                                    background: 'transparent',
-                                    border: '2px solid #ffb142',
-                                    color: '#ffb142',
-                                    padding: '8px 20px',
-                                    borderRadius: '20px',
-                                    fontWeight: 'bold',
-                                    cursor: 'pointer',
-                                    transition: '0.3s'
-                                }}
-                                    onMouseOver={e => { e.currentTarget.style.background = '#ffb142'; e.currentTarget.style.color = '#111'; }}
-                                    onMouseOut={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#ffb142'; }}>
-                                    Selecionar
-                                </button>
-                            </div>
-                        </div>
+            {/* ── HERO ── */}
+            <section className="aq-hero">
+                <div className="aq-hero__particles" aria-hidden="true">
+                    {[...Array(8)].map((_, i) => (
+                        <span key={i} className="aq-particle" />
                     ))}
                 </div>
-            </div>
 
+                <p className="aq-hero__eyebrow">Cervejaria Mars — Linha Artesanal</p>
+
+                <h1 className="aq-hero__h1">
+                    <span className="line-1"><span className="line-inner">Escolha</span></span>
+                    <span className="line-2"><span className="line-inner"><span className="aq-gold">sua</span></span></span>
+                    <span className="line-3"><span className="line-inner">cerveja.</span></span>
+                </h1>
+
+                <p className="aq-hero__sub">
+                    Três estilos, um propósito. Da seleção do malte ao último gole —
+                    feito com intenção, bebido com prazer.
+                </p>
+                <a href="#catalog" className="aq-hero__scroll">Ver catálogo ↓</a>
+            </section>
+
+            {/* ── CATALOG ── */}
+            <section className="aq-catalog" id="catalog">
+                <div className="aq-catalog__header" data-reveal="fade-up" data-delay="0">
+                    <div>
+                        <span className="aq-catalog__label">Linha completa</span>
+                        <span className="aq-catalog__count">
+                            <span className="aq-catalog__number">{cervejasList.length}</span> produtos
+                        </span>
+                    </div>
+                    <a href="#order" className="aq-catalog__link">Fazer pedido →</a>
+                </div>
+
+                <div className="aq-grid">
+                    {cervejasList.map((c, idx) => {
+                        const qtd = carrinho[c.id] || 0;
+                        return (
+                            <div
+                                key={c.id}
+                                data-nome={c.nome}
+                                data-idx={idx}
+                                className={`aq-card ${qtd > 0 ? 'aq-card--sel' : ''}`}
+                            >
+                                <div className="aq-card__img-wrap">
+                                    <span className="aq-card__badge">{c.tipo}</span>
+                                    <img
+                                        src={encodeURI(getImagemCerveja(c))}
+                                        alt={c.nome}
+                                        className="aq-card__img"
+                                    />
+                                </div>
+
+                                <div className="aq-card__content">
+                                    <div className="aq-card__info">
+                                        <p className="aq-card__abv">{c.abv}% ABV</p>
+                                        <h3 className="aq-card__nome">{c.nome}</h3>
+                                    </div>
+
+                                    <div className="aq-card__footer">
+                                        <span className="aq-card__price">
+                                            R$ {parseFloat(c.preco).toFixed(2).replace('.', ',')}
+                                        </span>
+
+                                        {qtd === 0 ? (
+                                            <button
+                                                className="aq-add-btn"
+                                                onClick={() => alterarQtd(c.id, 1)}
+                                            >
+                                                Adicionar ao carrinho
+                                            </button>
+                                        ) : (
+                                            <div className="aq-qty">
+                                                <button className="aq-qty__btn" onClick={() => alterarQtd(c.id, -1)}>−</button>
+                                                <span className="aq-qty__val">{qtd}</span>
+                                                <button className="aq-qty__btn" onClick={() => alterarQtd(c.id, 1)}>+</button>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            </section>
+
+            {/* ── PILL FLUTUANTE ── */}
+            {temItens && (
+                <a href="#order" className="aq-float-cart">
+                    <span className="aq-float-cart__lbl">
+                        {itensCarrinho.reduce((a, [, q]) => a + q, 0)} itens
+                    </span>
+                    <span className="aq-float-cart__sep">·</span>
+                    <span className="aq-float-cart__total">
+                        R$ {totalCarrinho().toFixed(2).replace('.', ',')}
+                    </span>
+                    <span className="aq-float-cart__arr"> Finalizar →</span>
+                </a>
+            )}
+
+            {/* ── ORDER ── */}
+            <section className="aq-order" id="order">
+                <div className="aq-order__head">
+                    <h2 className="aq-order__h2" ref={orderH2Ref}>
+                        <span style={{ display: 'block', overflow: 'hidden' }}>
+                            <span>Finalize</span>
+                        </span>
+                        <span style={{ display: 'block', overflow: 'hidden' }}>
+                            <span>seu pedido.</span>
+                        </span>
+                    </h2>
+                    <p className="aq-order__sub" data-reveal="fade-up" data-delay="200">
+                        {temItens
+                            ? `${itensCarrinho.reduce((a, [, q]) => a + q, 0)} produto(s) selecionado(s)`
+                            : 'Selecione cervejas acima'}
+                    </p>
+                </div>
+
+                <div className="aq-order__inner">
+                    {/* ── Resumo do pedido ── */}
+                    <div className="aq-order__summary" data-reveal="fade-right" data-delay="100">
+                        <p className="aq-order__col-label">Resumo do pedido</p>
+
+                        {!temItens ? (
+                            <div className="aq-empty">
+                                <p className="aq-empty__txt">
+                                    Nenhum item selecionado ainda.<br />
+                                    Escolha suas cervejas no catálogo acima.
+                                </p>
+                            </div>
+                        ) : (
+                            <div className="aq-cart">
+                                {itensCarrinho.map(([id, qtd]) => {
+                                    const c = cervejasList.find(c => c.id === id);
+                                    if (!c) return null;
+                                    return (
+                                        <div key={id} className="aq-cart__row">
+                                            <div className="aq-cart__info">
+                                                <span className="aq-cart__name">{c.nome}</span>
+                                                <span className="aq-cart__tipo">{c.tipo}</span>
+                                            </div>
+                                            <div className="aq-qty aq-qty--sm">
+                                                <button type="button" className="aq-qty__btn" onClick={() => alterarQtd(id, -1)}>−</button>
+                                                <span className="aq-qty__val">{qtd}</span>
+                                                <button type="button" className="aq-qty__btn" onClick={() => alterarQtd(id, 1)}>+</button>
+                                            </div>
+                                            <span className="aq-cart__price">
+                                                R$ {(parseFloat(c.preco) * qtd).toFixed(2).replace('.', ',')}
+                                            </span>
+                                        </div>
+                                    );
+                                })}
+                                <div className="aq-cart__total-row">
+                                    <span className="aq-cart__total-lbl">Total</span>
+                                    <span className="aq-cart__total-val">
+                                        R$ {totalCarrinho().toFixed(2).replace('.', ',')}
+                                    </span>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* ── Dados do pedido (substituindo o form de nome/email) ── */}
+                    <div className="aq-order__form-wrap" data-reveal="fade-left" data-delay="200">
+                        <p className="aq-order__col-label">Seus dados</p>
+
+                        {loadingPerfil ? (
+                            <div className="aq-perfil-loading">
+                                <span className="aq-perfil-loading__dot" />
+                                <span className="aq-perfil-loading__dot" />
+                                <span className="aq-perfil-loading__dot" />
+                            </div>
+                        ) : (
+                            <form className="aq-form" onSubmit={handleSubmit}>
+                                {/* Card de identificação do usuário */}
+                                <div className="aq-user-card">
+                                    <div className="aq-user-card__avatar" aria-hidden="true">
+                                        {perfil?.nome
+                                            ? perfil.nome.trim().split(' ').map(p => p[0]).slice(0, 2).join('').toUpperCase()
+                                            : (user?.email?.[0] || '?').toUpperCase()
+                                        }
+                                    </div>
+                                    <div className="aq-user-card__info">
+                                        <span className="aq-user-card__nome">
+                                            {perfil?.nome || 'Usuário'}
+                                        </span>
+                                        <span className="aq-user-card__email">
+                                            {user?.email}
+                                        </span>
+                                        {perfil?.telefone && (
+                                            <span className="aq-user-card__tel">
+                                                {perfil.telefone}
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Endereço de entrega */}
+                                {enderecoFormatado && (
+                                    <div className="aq-user-endereco">
+                                        <span className="aq-user-endereco__label">Entrega</span>
+                                        <span className="aq-user-endereco__val">{enderecoFormatado}</span>
+                                    </div>
+                                )}
+
+                                <button
+                                    type="submit"
+                                    className="aq-submit"
+                                    disabled={!temItens}
+                                    onClick={addRipple}
+                                >
+                                    <span>Confirmar pedido</span>
+                                    <span className="aq-submit__arr">→</span>
+                                </button>
+                            </form>
+                        )}
+                    </div>
+                </div>
+            </section>
+
+            <Footer />
         </div>
     );
 }
