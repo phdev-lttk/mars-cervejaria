@@ -1,0 +1,334 @@
+/* ============================================================
+   MARS CERVEJARIA — ADMIN LAYOUT
+   Efeitos: noise texture, scan line, borda amarela com glow
+   ============================================================ */
+
+/* ── FORÇA FUNDO PRETO NO ADMIN (cancela gradiente do body global) ── */
+.admin-layout {
+  position: fixed;
+  inset: 0;
+  overflow: hidden; /* mudado para hidden, o scroll vai para o admin-content */
+  background: #000 !important;
+  font-family: 'Poppins', sans-serif;
+  color: #fff;
+  isolation: isolate;
+}
+
+/* ══════════════════════════════════
+   GIF DE FUNDO GLOBAL
+══════════════════════════════════ */
+.admin-bg-gif {
+  position: fixed;
+  left: 220px; /* Inicia depois da sidebar */
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 1;
+}
+
+.admin-bg-overlay {
+  position: fixed;
+  left: 220px;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    to right,
+    #000 0%,
+    rgba(0,0,0,0.85) 40%,
+    rgba(0,0,0,0.4) 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── NOISE DE FUNDO (efeito grain) ── */
+.admin-layout::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.6;
+}
+
+/* ── SCAN LINE (efeito CRT sutil) ── */
+.admin-layout::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.03) 2px,
+    rgba(0, 0, 0, 0.03) 4px
+  );
+  pointer-events: none;
+  z-index: 9998;
+}
+
+/* ══════════════════════════════════
+   SIDEBAR
+══════════════════════════════════ */
+.admin-sidebar {
+  width: 220px;
+  min-height: 100vh;
+  background: #080808;
+  border-right: 2px solid #ffa800;
+  box-shadow: 4px 0 30px rgba(255, 168, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 200;
+}
+
+/* ── LOGO ── */
+.admin-sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 22px 20px;
+  background: #ffa800;
+  position: relative;
+  overflow: hidden;
+}
+
+/* shimmer no logo */
+.admin-sidebar-logo::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  animation: logoShimmer 3s ease infinite;
+}
+
+@keyframes logoShimmer {
+  0%   { left: -100%; }
+  50%  { left: 150%; }
+  100% { left: 150%; }
+}
+
+.admin-sidebar-logo-icon {
+  width: 36px;
+  height: 36px;
+  background: #000;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.admin-sidebar-logo-title {
+  display: block;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.4rem;
+  color: #000;
+  letter-spacing: 3px;
+  line-height: 1.1;
+  position: relative;
+  z-index: 1;
+}
+
+.admin-sidebar-logo-sub {
+  display: block;
+  font-size: 0.58rem;
+  color: rgba(0, 0, 0, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 2.5px;
+  font-weight: 600;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── NAV ── */
+.admin-sidebar-nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 16px 0;
+}
+
+.admin-sidebar-nav-label {
+  display: block;
+  font-size: 0.58rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.18);
+  text-transform: uppercase;
+  letter-spacing: 2.5px;
+  padding: 12px 20px 8px;
+}
+
+.admin-sidebar-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 20px;
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.82rem;
+  font-weight: 500;
+  transition: all 0.15s ease;
+  border-left: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.admin-sidebar-nav-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  background: rgba(255, 168, 0, 0.07);
+  transition: width 0.2s ease;
+}
+
+.admin-sidebar-nav-item:hover::before {
+  width: 100%;
+}
+
+.admin-sidebar-nav-item:hover {
+  color: #fff;
+  border-left-color: rgba(255, 168, 0, 0.5);
+  text-shadow: none;
+}
+
+.admin-sidebar-nav-item.active {
+  color: #ffa800;
+  border-left-color: #ffa800;
+  background: rgba(255, 168, 0, 0.08);
+  font-weight: 600;
+}
+
+.admin-sidebar-nav-icon {
+  font-size: 1rem;
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── FOOTER DA SIDEBAR ── */
+.admin-sidebar-footer {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.admin-sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 20px;
+}
+
+.admin-sidebar-avatar {
+  width: 30px;
+  height: 30px;
+  background: #ffa800;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 800;
+  color: #000;
+  flex-shrink: 0;
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 1px;
+}
+
+.admin-sidebar-user-info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.admin-sidebar-user-email {
+  font-size: 0.68rem;
+  color: rgba(255, 255, 255, 0.35);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 140px;
+}
+
+.admin-sidebar-user-role {
+  font-size: 0.58rem;
+  color: #ffa800;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.admin-sidebar-logout {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  width: 100%;
+  text-align: left;
+  font-family: 'Poppins', sans-serif;
+  box-shadow: none;
+}
+
+.admin-sidebar-logout:hover {
+  background: rgba(255, 50, 50, 0.07);
+  color: #ff7070;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ══════════════════════════════════
+   CONTEÚDO PRINCIPAL
+══════════════════════════════════ */
+.admin-content {
+  margin-left: 220px;
+  flex: 1;
+  height: 100vh;
+  overflow-y: auto;
+  position: relative;
+  z-index: 1;
+}
+
+.admin-content-inner {
+  padding: 40px 44px;
+  min-height: 100%;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .admin-sidebar { display: none; }
+  .admin-content { margin-left: 0; }
+  .admin-content-inner { padding: 20px 16px; }
+  .admin-bg-gif, .admin-bg-overlay { left: 0; }
+}

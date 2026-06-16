@@ -1,0 +1,290 @@
+/* ============================================================
+   MARS CERVEJARIA — ADMIN PAGES SHARED
+   DNA: preto + amarelo + Bebas Neue + Poppins
+   ============================================================ */
+
+/* ── CONTAINER ── */
+.admin-page {
+  animation: adminIn 0.3s ease;
+}
+
+@keyframes adminIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── BACK LINK ── */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.78rem;
+  font-weight: 500;
+  margin-bottom: 28px;
+  padding: 7px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.15s ease;
+  text-decoration: none;
+}
+
+.back-link:hover {
+  color: #ffa800;
+  border-color: rgba(255, 168, 0, 0.3);
+  text-shadow: none;
+}
+
+/* ── TÍTULO DA PÁGINA ── */
+.admin-page-title {
+  font-family: 'Bebas Neue', 'Alata', sans-serif;
+  font-size: 2.6rem;
+  font-weight: 400;
+  color: #fff;
+  margin: 0 0 4px 0;
+  letter-spacing: 2px;
+  text-shadow: none;
+  line-height: 1;
+}
+
+.admin-page-title span {
+  color: #ffa800;
+}
+
+.admin-page-subtitle {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.3);
+  margin-bottom: 32px;
+  font-weight: 400;
+}
+
+/* ── FORMULÁRIO ── */
+.admin-form {
+  background: rgba(13, 13, 13, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 3px solid #ffa800;
+  padding: 22px 20px;
+  margin-bottom: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 460px;
+}
+
+.admin-form-title {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #ffa800;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 6px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 168, 0, 0.1);
+}
+
+.admin-form input,
+.admin-form select {
+  width: 100%;
+  padding: 10px 14px;
+  background: #000;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border-radius: 0;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.86rem;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.admin-form input:focus,
+.admin-form select:focus {
+  border-color: #ffa800;
+  background: #050505;
+  box-shadow: none;
+}
+
+.admin-form input::placeholder {
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.admin-form select option {
+  background: #111;
+  color: #fff;
+}
+
+.admin-form-btns {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+/* ── BOTÕES ── */
+.btn-primary {
+  background: #ffa800;
+  color: #000;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 0;
+  font-weight: 700;
+  font-size: 0.82rem;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: none;
+}
+
+.btn-primary:hover {
+  background: #ffbe2e;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-secondary {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 10px 18px;
+  border-radius: 0;
+  font-weight: 500;
+  font-size: 0.82rem;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: none;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: none;
+  box-shadow: none;
+}
+
+/* ── TABELA ── */
+.admin-table-wrap {
+  background: rgba(13, 13, 13, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  overflow: hidden;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0;
+  background: transparent;
+  backdrop-filter: none;
+}
+
+.admin-table thead {
+  background: rgba(255, 168, 0, 0.06);
+  border-bottom: 2px solid rgba(255, 168, 0, 0.2);
+}
+
+.admin-table th {
+  color: #ffa800;
+  font-weight: 700;
+  text-align: left;
+  padding: 14px 18px;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-family: 'Poppins', sans-serif;
+}
+
+.admin-table td {
+  padding: 13px 18px;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.75);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  vertical-align: middle;
+}
+
+.admin-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-table tbody tr:hover td {
+  background: rgba(255, 168, 0, 0.04);
+}
+
+/* ── AÇÕES ── */
+.btn-edit {
+  background: transparent;
+  color: #ffa800;
+  border: 1px solid rgba(255, 168, 0, 0.3);
+  padding: 5px 14px;
+  border-radius: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  margin-right: 6px;
+  box-shadow: none;
+  font-family: 'Poppins', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-edit:hover {
+  background: rgba(255, 168, 0, 0.1);
+  border-color: #ffa800;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-delete {
+  background: transparent;
+  color: rgba(255, 80, 80, 0.7);
+  border: 1px solid rgba(255, 80, 80, 0.2);
+  padding: 5px 14px;
+  border-radius: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: none;
+  font-family: 'Poppins', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-delete:hover {
+  background: rgba(255, 80, 80, 0.08);
+  border-color: rgba(255, 80, 80, 0.5);
+  color: #ff6b6b;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ── STATUS BADGES ── */
+.status-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-pendente   { background: rgba(255, 193, 7, 0.12);  color: #ffc107; border: 1px solid rgba(255, 193, 7, 0.25); }
+.status-confirmado { background: rgba(80, 160, 255, 0.12); color: #60a5fa; border: 1px solid rgba(80, 160, 255, 0.25); }
+.status-em_preparo { background: rgba(255, 168, 0, 0.12);  color: #ffa800; border: 1px solid rgba(255, 168, 0, 0.25); }
+.status-enviado    { background: rgba(140, 100, 255, 0.12); color: #a78bfa; border: 1px solid rgba(140, 100, 255, 0.25); }
+.status-entregue   { background: rgba(40, 180, 100, 0.12); color: #34d399; border: 1px solid rgba(40, 180, 100, 0.25); }
+.status-cancelado  { background: rgba(220, 53, 53, 0.12);  color: #ff6b6b; border: 1px solid rgba(220, 53, 53, 0.25); }
+.status-default    { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.12); }
+
+/* ── ESTADO VAZIO ── */
+.admin-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: rgba(255, 255, 255, 0.25);
+  font-size: 0.86rem;
+  font-style: italic;
+}

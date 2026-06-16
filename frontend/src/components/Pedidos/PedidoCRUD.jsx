@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { Link } from 'react-router-dom';
+import { GlitchText } from '../UI/Animations';
+import '../admin.css';
 
 export default function PedidoCRUD() {
   const [pedidos, setPedidos] = useState([]);
@@ -10,10 +12,23 @@ export default function PedidoCRUD() {
   const [editandoId, setEditandoId] = useState(null);
 
   async function carregar() {
-    const snapP = await getDocs(collection(db, 'pedidos'));
-    setPedidos(snapP.docs.map(d => ({ id: d.id, ...d.data() })));
     const snapU = await getDocs(collection(db, 'usuarios'));
-    setUsuarios(snapU.docs.map(d => ({ id: d.id, ...d.data() })));
+    const listaUsuarios = snapU.docs.map(d => ({ id: d.id, ...d.data() }));
+    setUsuarios(listaUsuarios);
+
+    const snapP = await getDocs(collection(db, 'pedidos'));
+    const listaPedidos = snapP.docs.map(d => {
+      const data = d.data();
+      // Tenta achar o nome do usuário pelo usuarioId se não tiver salvo diretamente (retrocompatibilidade)
+      const userDoc = listaUsuarios.find(u => u.id === data.usuarioId);
+      return {
+        id: d.id,
+        ...data,
+        usuarioNome: data.usuarioNome || userDoc?.nome || 'Cliente Desconhecido',
+        total: data.total || '0'
+      };
+    });
+    setPedidos(listaPedidos);
   }
 
   useEffect(() => { carregar(); }, []);
@@ -48,17 +63,41 @@ export default function PedidoCRUD() {
     setEditandoId(p.id);
   }
 
-  return (
-    <div style={{ padding: '2rem' }}>
-      <Link to="/dashboard">← Voltar</Link>
-      <h2>CRUD — Pedidos</h2>
+  const statusClass = (s) => {
+    if (!s) return 'status-pendente';
+    const key = s.toLowerCase().replace(' ', '_');
+    return `status-${key}`;
+  };
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxWidth: '400px', marginBottom: '1rem' }}>
+  return (
+    <div className="admin-page">
+
+      <Link to="/dashboard" className="back-link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12" />
+          <polyline points="12 19 5 12 12 5" />
+        </svg>
+        Voltar ao Dashboard
+      </Link>
+
+      <h2 className="admin-page-title">Gerenciar <GlitchText>Pedidos</GlitchText></h2>
+      <p className="admin-page-subtitle">Registre e acompanhe o status dos pedidos</p>
+
+      {/* ── FORMULÁRIO ── */}
+      <div className="admin-form">
+        <p className="admin-form-title">
+          {editandoId ? '✏️ Editando pedido' : '+ Novo Pedido'}
+        </p>
         <select value={form.usuarioId} onChange={e => selecionarUsuario(e.target.value)}>
-          <option value="">Selecione um usuário</option>
+          <option value="">Selecione um cliente</option>
           {usuarios.map(u => <option key={u.id} value={u.id}>{u.nome}</option>)}
         </select>
-        <input placeholder="Total (R$)" type="number" value={form.total} onChange={e => setForm({ ...form, total: e.target.value })} />
+        <input
+          placeholder="Total (R$)"
+          type="number"
+          value={form.total}
+          onChange={e => setForm({ ...form, total: e.target.value })}
+        />
         <select value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}>
           <option value="pendente">Pendente</option>
           <option value="confirmado">Confirmado</option>
@@ -67,28 +106,59 @@ export default function PedidoCRUD() {
           <option value="entregue">Entregue</option>
           <option value="cancelado">Cancelado</option>
         </select>
-        <button onClick={salvar}>{editandoId ? 'Atualizar' : 'Cadastrar'}</button>
-        {editandoId && <button onClick={() => { setEditandoId(null); setForm({ usuarioId: '', usuarioNome: '', total: '', status: 'pendente' }); }}>Cancelar</button>}
+        <div className="admin-form-btns">
+          <button className="btn-primary" onClick={salvar}>
+            {editandoId ? 'Atualizar' : 'Cadastrar'}
+          </button>
+          {editandoId && (
+            <button
+              className="btn-secondary"
+              onClick={() => { setEditandoId(null); setForm({ usuarioId: '', usuarioNome: '', total: '', status: 'pendente' }); }}
+            >
+              Cancelar
+            </button>
+          )}
+        </div>
       </div>
 
-      <table border="1" cellPadding="8">
-        <thead>
-          <tr><th>Cliente</th><th>Total</th><th>Status</th><th>Ações</th></tr>
-        </thead>
-        <tbody>
-          {pedidos.map(p => (
-            <tr key={p.id}>
-              <td>{p.usuarioNome}</td>
-              <td>R$ {p.total}</td>
-              <td>{p.status}</td>
-              <td>
-                <button onClick={() => editar(p)}>Editar</button>
-                <button onClick={() => excluir(p.id)}>Excluir</button>
-              </td>
+      {/* ── TABELA ── */}
+      <div className="admin-table-wrap">
+        <table className="admin-table">
+          <thead>
+            <tr>
+              <th>Cliente</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Ações</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="staggered-list">
+            {pedidos.length === 0 ? (
+              <tr><td colSpan="4" className="admin-empty">Nenhum pedido registrado ainda.</td></tr>
+            ) : (
+              pedidos.map(p => (
+                <tr key={p.id}>
+                  <td>
+                    <strong style={{ color: '#fff' }}>{p.usuarioNome}</strong>
+                    {p.cervejaNome && <span style={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.78rem', marginLeft: '6px' }}>({p.cervejaNome})</span>}
+                  </td>
+                  <td style={{ color: '#ffa800', fontWeight: '600' }}>R$ {p.total}</td>
+                  <td>
+                    <span className={`status-badge ${statusClass(p.status)}`}>
+                      {p.status || 'pendente'}
+                    </span>
+                  </td>
+                  <td>
+                    <button className="btn-edit" onClick={() => editar(p)}>Editar</button>
+                    <button className="btn-delete" onClick={() => excluir(p.id)}>Excluir</button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
     </div>
   );
 }

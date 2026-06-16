@@ -1,0 +1,321 @@
+/* ============================================================
+   MARS CERVEJARIA — DASHBOARD
+   Fundo: GIF de cerveja real + Glitch + Flip Counter
+   ============================================================ */
+
+.dash-content {
+  position: relative;
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.45s ease, transform 0.45s ease;
+  min-height: 100vh;
+}
+.dash-content.dash-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ══════════════════════════════════
+   HERO
+══════════════════════════════════ */
+.dash-hero {
+  position: relative;
+  z-index: 1;
+  margin-bottom: 44px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.dash-hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: #ffa800;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+.dash-hero-tag-dot {
+  width: 6px;
+  height: 6px;
+  background: #ffa800;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #ffa800;
+  animation: tagPulse 2s ease infinite;
+}
+
+@keyframes tagPulse {
+  0%, 100% { box-shadow: 0 0 8px #ffa800; opacity: 1; }
+  50%       { box-shadow: 0 0 2px rgba(255,168,0,0.3); opacity: 0.6; }
+}
+
+.dash-hero-title {
+  font-family: 'Bebas Neue', 'Alata', sans-serif;
+  font-size: clamp(2.8rem, 5.5vw, 4.5rem);
+  font-weight: 400;
+  color: #fff;
+  line-height: 0.95;
+  margin: 0 0 14px 0;
+  text-shadow: none;
+  letter-spacing: 2px;
+}
+
+.dash-hero-sub {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.25);
+  margin: 0;
+}
+
+/* ══════════════════════════════════
+   GLITCH TEXT
+══════════════════════════════════ */
+.glitch-wrap {
+  color: #ffa800;
+  position: relative;
+  display: inline-block;
+}
+.glitch-wrap::before,
+.glitch-wrap::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+}
+.glitch-wrap::before {
+  color: #ff4400;
+  animation: glitchA 5s step-end infinite;
+  clip-path: polygon(0 0, 100% 0, 100% 33%, 0 33%);
+}
+.glitch-wrap::after {
+  color: #ffd000;
+  animation: glitchB 5s step-end infinite;
+  clip-path: polygon(0 66%, 100% 66%, 100% 100%, 0 100%);
+}
+@keyframes glitchA {
+  0%,78%,100% { transform: none; opacity: 0; }
+  80% { transform: translate(-4px,-2px); opacity: 0.85; }
+  82% { transform: translate(3px,1px);  opacity: 0.85; }
+  84% { opacity: 0; }
+}
+@keyframes glitchB {
+  0%,82%,100% { transform: none; opacity: 0; }
+  84% { transform: translate(4px,2px);   opacity: 0.75; }
+  86% { transform: translate(-3px,-1px); opacity: 0.75; }
+  88% { opacity: 0; }
+}
+
+/* ══════════════════════════════════
+   FLIP COUNTER
+══════════════════════════════════ */
+.stat-loading {
+  color: rgba(255,168,0,0.3);
+  letter-spacing: 4px;
+  animation: loadingPulse 1s ease infinite;
+}
+@keyframes loadingPulse {
+  0%,100% { opacity: 0.3; }
+  50%      { opacity: 1; }
+}
+
+/* ══════════════════════════════════
+   STATS ROW
+══════════════════════════════════ */
+.dash-stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border: 1px solid rgba(255,255,255,0.07);
+  margin-bottom: 44px;
+  position: relative;
+  z-index: 1;
+  background: rgba(5, 5, 5, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.stat-block {
+  padding: 26px 22px;
+  border-right: 1px solid rgba(255,255,255,0.07);
+  position: relative;
+  overflow: hidden;
+  transition: background 0.2s ease;
+  cursor: default;
+}
+.stat-block:last-child { border-right: none; }
+
+.stat-block::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 0; height: 2px;
+  background: #ffa800;
+  transition: width 0.35s ease;
+}
+.stat-block:hover::after  { width: 100%; }
+.stat-block:hover         { background: rgba(255,168,0,0.06); }
+
+.stat-block-gold {
+  background: #ffa800;
+}
+.stat-block-gold .stat-block-num   { color: #000 !important; }
+.stat-block-gold .stat-block-label { color: rgba(0,0,0,0.55); }
+.stat-block-gold .stat-block-bar   { background: rgba(0,0,0,0.2); }
+.stat-block-gold::after            { background: #000; }
+.stat-block-gold:hover             { background: #ffb820; }
+
+.stat-block-num {
+  font-family: 'Bebas Neue', 'Alata', sans-serif;
+  font-size: clamp(2rem, 3.5vw, 3rem);
+  font-weight: 400;
+  color: #ffa800;
+  line-height: 1;
+  margin-bottom: 10px;
+  letter-spacing: 1px;
+}
+.stat-block-bar {
+  width: 20px; height: 2px;
+  background: rgba(255,168,0,0.3);
+  margin-bottom: 10px;
+}
+.stat-block-label {
+  font-size: 0.68rem;
+  color: rgba(255,255,255,0.3);
+  line-height: 1.55;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ══════════════════════════════════
+   DIVISOR
+══════════════════════════════════ */
+.dash-sep {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+  position: relative;
+  z-index: 1;
+}
+.dash-sep span {
+  font-size: 0.58rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.18);
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  white-space: nowrap;
+}
+.dash-sep::before,
+.dash-sep::after {
+  content: ''; flex: 1; height: 1px;
+  background: rgba(255,255,255,0.06);
+}
+
+/* ══════════════════════════════════
+   ACTION CARDS
+══════════════════════════════════ */
+.dash-action-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+.dash-action-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 22px;
+  background: rgba(8, 8, 8, 0.8);
+  border: 1px solid rgba(255,255,255,0.07);
+  text-decoration: none;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.2s ease;
+  animation: cardSlideIn 0.4s ease both;
+  animation-delay: var(--delay, 0ms);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+@keyframes cardSlideIn {
+  from { opacity: 0; transform: translateX(-10px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* borda traçada no hover */
+.card-border-top,.card-border-right,.card-border-bottom,.card-border-left {
+  position: absolute;
+  background: #ffa800;
+  transition: all 0.25s ease;
+}
+.card-border-top    { top: 0;    left: 0;  height: 2px; width: 0; }
+.card-border-bottom { bottom: 0; right: 0; height: 2px; width: 0; }
+.card-border-right  { top: 0;    right: 0; width: 2px; height: 0; }
+.card-border-left   { bottom: 0; left: 0;  width: 2px; height: 0; }
+
+.dash-action-card:hover .card-border-top,
+.dash-action-card:hover .card-border-bottom { width: 100%; }
+.dash-action-card:hover .card-border-right,
+.dash-action-card:hover .card-border-left   { height: 100%; }
+
+.dash-action-card:hover {
+  background: rgba(14, 14, 14, 0.9);
+  color: #fff;
+  text-shadow: none;
+}
+
+.dash-action-card-icon {
+  flex-shrink: 0;
+  width: 44px; height: 44px;
+  background: rgba(255,168,0,0.07);
+  border: 1px solid rgba(255,168,0,0.14);
+  display: flex; align-items: center; justify-content: center;
+  color: rgba(255,168,0,0.7);
+  transition: all 0.2s ease;
+}
+.dash-action-card:hover .dash-action-card-icon {
+  background: rgba(255,168,0,0.14);
+  color: #ffa800;
+  border-color: rgba(255,168,0,0.3);
+}
+
+.dash-action-card-body { flex: 1; }
+.dash-action-card-label {
+  font-family: 'Bebas Neue', 'Alata', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 1.5px;
+  color: #fff;
+  line-height: 1;
+  margin-bottom: 3px;
+}
+.dash-action-card-desc {
+  font-size: 0.7rem;
+  color: rgba(255,255,255,0.27);
+}
+
+.dash-action-card-arrow {
+  color: rgba(255,168,0,0.25);
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  display: flex;
+}
+.dash-action-card:hover .dash-action-card-arrow {
+  color: #ffa800;
+  transform: translateX(4px);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1100px) {
+  .dash-stats-row     { grid-template-columns: repeat(2,1fr); }
+  .stat-block         { border-bottom: 1px solid rgba(255,255,255,0.07); }
+  .dash-bg-gif        { width: 70%; }
+}
+@media (max-width: 700px) {
+  .dash-action-grid   { grid-template-columns: 1fr; }
+  .dash-stats-row     { grid-template-columns: 1fr 1fr; }
+  .dash-bg-gif        { display: none; }
+}
