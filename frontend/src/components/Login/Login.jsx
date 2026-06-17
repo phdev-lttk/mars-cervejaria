@@ -34,6 +34,7 @@ export default function Login() {
   const [endereco, setEndereco] = useState(ENDERECO_INICIAL);
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState("");
+  const [aceitouTermo, setAceitouTermo] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -89,6 +90,11 @@ export default function Login() {
         const idade = calcularIdade(dataNascimento);
         if (idade === null || idade < 18) {
           setErro("Você precisa ter 18 anos ou mais para se cadastrar.");
+          return;
+        }
+
+        if (!aceitouTermo) {
+          setErro("Você deve aceitar o termo de ciência para concluir o cadastro.");
           return;
         }
 
@@ -276,6 +282,22 @@ export default function Login() {
                 handleEnderecoChange("cep", mascararCep(e.target.value))
               }
             />
+
+            <div className="termo-ciencia">
+  
+            <input
+              type="checkbox"
+              id="termoCiencia"
+              checked={aceitouTermo}
+              onChange={(e) => setAceitouTermo(e.target.checked)}
+            />
+
+            <label htmlFor="termoCiencia">
+              Declaro estar ciente de que a mercadoria será entregue somente mediante
+              apresentação de documento oficial com foto para comprovação da
+              maioridade do destinatário.
+            </label>
+          </div>
           </>
         )}
 
